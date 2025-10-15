@@ -91,19 +91,20 @@ impl Color {
         }
     }
 
-    #[koto_method]
+    #[koto_access]
     pub fn alpha(&self) -> KValue {
         self.alpha.into()
     }
 
-    #[koto_method]
-    pub fn set_alpha(ctx: MethodContext<Self>) -> Result<KValue> {
-        match ctx.args {
-            [KValue::Number(n)] => ctx.instance_mut()?.alpha = n.into(),
-            unexpected => return unexpected_args("|Number|", unexpected),
+    #[koto_access_assign]
+    pub fn set_alpha(&mut self, value: &KValue) -> Result<()> {
+        match value {
+            KValue::Number(value) => {
+                self.alpha = value.into();
+                Ok(())
+            }
+            unexpected => unexpected_type("Number", unexpected),
         }
-
-        ctx.instance_result()
     }
 
     #[koto_method]

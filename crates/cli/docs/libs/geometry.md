@@ -149,7 +149,7 @@ Returns the position of rectangle's left edge.
 ```koto
 # Create a rectangle centered at 0, 0
 r = geometry.rect 0, 0, 200, 100
-print! r.left()
+print! r.left
 check! -100.0
 ```
 
@@ -166,7 +166,7 @@ Returns the position of rectangle's right edge.
 ```koto
 # Create a rectangle centered at 0, 0
 r = geometry.rect 0, 0, 200, 100
-print! r.right()
+print! r.right
 check! 100.0
 ```
 
@@ -183,7 +183,7 @@ Returns the position of rectangle's top edge.
 ```koto
 # Create a rectangle centered at 0, 0
 r = geometry.rect 0, 0, 200, 100
-print! r.top()
+print! r.top
 check! 50.0
 ```
 
@@ -200,7 +200,7 @@ Returns the position of rectangle's bottom edge.
 ```koto
 # Create a rectangle centered at 0, 0
 r = geometry.rect 0, 0, 200, 100
-print! r.bottom()
+print! r.bottom
 check! -50.0
 ```
 
@@ -216,7 +216,7 @@ Returns the width of the rectangle.
 
 ```koto
 r = geometry.rect 0, 0, 200, 100
-print! r.width()
+print! r.width
 check! 200.0
 ```
 
@@ -232,7 +232,7 @@ Returns the width of the rectangle.
 
 ```koto
 r = geometry.rect 0, 0, 200, 100
-print! r.height()
+print! r.height
 check! 100.0
 ```
 
@@ -248,7 +248,7 @@ Returns the center point of the rectangle.
 
 ```koto
 r = geometry.rect -100, 42, 200, 100
-print! r.center()
+print! r.center
 check! Vec2{x: -100, y: 42}
 ```
 
@@ -264,7 +264,7 @@ Returns the `x` component of the rectangle's center point.
 
 ```koto
 r = geometry.rect -100, 42, 200, 100
-print! r.x()
+print! r.x
 check! -100.0
 ```
 
@@ -280,7 +280,7 @@ Returns the `y` component of the rectangle's center point.
 
 ```koto
 r = geometry.rect -100, 42, 200, 100
-print! r.y()
+print! r.y
 check! 42.0
 ```
 
@@ -409,9 +409,9 @@ Returns the `x` coordinate of the vector.
 ```koto
 from geometry import vec2
 
-print! vec2(-1, 0).x()
+print! vec2(-1, 0).x
 check! -1.0
-print! vec2(3, 4).x()
+print! vec2(3, 4).x
 check! 3.0
 ```
 
@@ -428,9 +428,9 @@ Returns the `y` coordinate of the vector.
 ```koto
 from geometry import vec2
 
-print! vec2(0, -2).y()
+print! vec2(0, -2).y
 check! -2.0
-print! vec2(3, 4).y()
+print! vec2(3, 4).y
 check! 4.0
 ```
 
@@ -468,7 +468,7 @@ Returns the `x` coordinate of the vector.
 ```koto
 from geometry import vec3
 
-print! vec3(-1, 0, 1).x()
+print! vec3(-1, 0, 1).x
 check! -1.0
 ```
 
@@ -486,7 +486,7 @@ Returns the `y` coordinate of the vector.
 ```koto
 from geometry import vec3
 
-print! vec3(-1, -2, -3).y()
+print! vec3(-1, -2, -3).y
 check! -2.0
 ```
 
@@ -503,7 +503,7 @@ Returns the `z` coordinate of the vector.
 ```koto
 from geometry import vec3
 
-print! vec3(10, 20, 30).z()
+print! vec3(10, 20, 30).z
 check! 30.0
 ```
 

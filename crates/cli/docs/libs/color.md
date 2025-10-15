@@ -248,39 +248,26 @@ check! Color(Oklch, l: 0.25, c: 0.1, h: 180, a: 1)
 ## Color.alpha
 
 ```kototype
-|Color| -> Number
+Number
 ```
 
-Returns the color's alpha value.
+Gets and sets the color's alpha value.
 
 ### Example
 
 ```koto
 c = color 'red'
 
-print! c.alpha()
+print! c.alpha
 check! 1.0
 
-c[3] = 0.5
-print! c.alpha()
-check! 0.5
-```
-
-## Color.set_alpha
-
-```kototype
-|Color, alpha: Number| -> Color
-```
-
-Sets the color's alpha component to the given value, and returns the color.
-
-### Example
-
-```koto
-c = color 'red'
-
-print! c.set_alpha(0.25).alpha()
+c.alpha = 0.25
+print! c.alpha
 check! 0.25
+
+c[3] = 0.5
+print! c.alpha
+check! 0.5
 ```
 
 ## Color.mix

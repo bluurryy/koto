@@ -17,6 +17,38 @@ impl Vec2 {
         self.0
     }
 
+    #[koto_access]
+    fn x(&self) -> KValue {
+        self.0.x.into()
+    }
+
+    #[koto_access]
+    fn y(&self) -> KValue {
+        self.0.y.into()
+    }
+
+    #[koto_access_assign]
+    fn set_x(&mut self, value: &KValue) -> Result<()> {
+        match value {
+            KValue::Number(value) => {
+                self.0.x = value.into();
+                Ok(())
+            }
+            unexpected => unexpected_type("Number", unexpected),
+        }
+    }
+
+    #[koto_access_assign]
+    fn set_y(&mut self, value: &KValue) -> Result<()> {
+        match value {
+            KValue::Number(value) => {
+                self.0.y = value.into();
+                Ok(())
+            }
+            unexpected => unexpected_type("Number", unexpected),
+        }
+    }
+
     #[koto_method]
     fn angle(&self) -> KValue {
         Inner::X.angle_to(self.0).into()
@@ -25,16 +57,6 @@ impl Vec2 {
     #[koto_method]
     fn length(&self) -> KValue {
         self.0.length().into()
-    }
-
-    #[koto_method]
-    fn x(&self) -> KValue {
-        self.0.x.into()
-    }
-
-    #[koto_method]
-    fn y(&self) -> KValue {
-        self.0.y.into()
     }
 }
 

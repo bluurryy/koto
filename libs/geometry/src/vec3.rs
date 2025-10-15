@@ -12,24 +12,57 @@ impl Vec3 {
         Self(DVec3::new(x, y, z))
     }
 
-    #[koto_method]
+    #[koto_access]
     fn x(&self) -> KValue {
         self.0.x.into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn y(&self) -> KValue {
         self.0.y.into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn z(&self) -> KValue {
         self.0.z.into()
     }
 
+    #[koto_access_assign]
+    fn set_x(&mut self, value: &KValue) -> Result<()> {
+        match value {
+            KValue::Number(value) => {
+                self.0.x = value.into();
+                Ok(())
+            }
+            unexpected => unexpected_type("Number", unexpected),
+        }
+    }
+
+    #[koto_access_assign]
+    fn set_y(&mut self, value: &KValue) -> Result<()> {
+        match value {
+            KValue::Number(value) => {
+                self.0.y = value.into();
+                Ok(())
+            }
+            unexpected => unexpected_type("Number", unexpected),
+        }
+    }
+
+    #[koto_access_assign]
+    fn set_z(&mut self, value: &KValue) -> Result<()> {
+        match value {
+            KValue::Number(value) => {
+                self.0.z = value.into();
+                Ok(())
+            }
+            unexpected => unexpected_type("Number", unexpected),
+        }
+    }
+
     #[koto_method]
     fn length(&self) -> KValue {
-        (self.0.length()).into()
+        self.0.length().into()
     }
 }
 

@@ -31,47 +31,47 @@ impl Rect {
         }
     }
 
-    #[koto_method]
+    #[koto_access]
     fn left(&self) -> KValue {
         self.x.start.into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn right(&self) -> KValue {
         self.x.end.into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn bottom(&self) -> KValue {
         self.y.start.into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn top(&self) -> KValue {
         self.y.end.into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn width(&self) -> KValue {
         self.x.len().into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn height(&self) -> KValue {
         self.y.len().into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn center(&self) -> KValue {
         Vec2::new(self.x.center(), self.y.center()).into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn x(&self) -> KValue {
         self.x.center().into()
     }
 
-    #[koto_method]
+    #[koto_access]
     fn y(&self) -> KValue {
         self.y.center().into()
     }
