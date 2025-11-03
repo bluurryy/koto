@@ -1,6 +1,6 @@
 use crate::{KList, vm::NonLocals};
 use koto_bytecode::{Chunk, FunctionFlags};
-use koto_memory::{KotoTrace, Ptr};
+use koto_memory::{KotoTrace, OptPtr, Ptr};
 
 /// A Koto function
 ///
@@ -21,7 +21,7 @@ pub struct KFunction {
     /// Flags that define various properties of the function
     pub flags: FunctionFlags,
     /// Context for the function, including captures and access to non-locals
-    pub context: Option<Ptr<FunctionContext>>,
+    pub context: OptPtr<FunctionContext>,
     // Pads the size of KFunction to exactly 24 bytes on 64 byte targets,
     // allowing KFunction to be used in niche optimization for KValue.
     _niche: Niche,
@@ -35,7 +35,7 @@ impl KFunction {
         arg_count: u8,
         optional_arg_count: u8,
         flags: FunctionFlags,
-        context: Option<Ptr<FunctionContext>>,
+        context: OptPtr<FunctionContext>,
     ) -> Self {
         Self {
             chunk,

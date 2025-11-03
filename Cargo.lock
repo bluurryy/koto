@@ -332,7 +332,7 @@ dependencies = [
 [[package]]
 name = "dumpster"
 version = "1.2.0"
-source = "git+https://github.com/claytonwramsey/dumpster#0bdafdbb86b799f3e55a5d575f4bcc48ef8ca5a9"
+source = "git+https://github.com/bluurryy/dumpster?branch=optional-gc#10913110e853bc2a4543c5e69d7307fcbd7f3a23"
 dependencies = [
  "dumpster_derive",
  "loom",
@@ -342,7 +342,7 @@ dependencies = [
 [[package]]
 name = "dumpster_derive"
 version = "1.1.0"
-source = "git+https://github.com/claytonwramsey/dumpster#0bdafdbb86b799f3e55a5d575f4bcc48ef8ca5a9"
+source = "git+https://github.com/bluurryy/dumpster?branch=optional-gc#10913110e853bc2a4543c5e69d7307fcbd7f3a23"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1910,7 +1910,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]

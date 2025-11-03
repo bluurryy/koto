@@ -28,8 +28,8 @@ pub use crate::{
 };
 pub use koto_derive as derive;
 pub use koto_memory::{
-    self as memory, Borrow, BorrowMut, KCell, KotoSend, KotoSync, KotoTrace, Ptr, PtrMut, lazy,
-    make_ptr, make_ptr_mut,
+    self as memory, Borrow, BorrowMut, KCell, KotoSend, KotoSync, KotoTrace, OptPtr, OptPtrMut,
+    Ptr, PtrMut, lazy, make_ptr, make_ptr_mut,
 };
 
 #[doc(hidden)]

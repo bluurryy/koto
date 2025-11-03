@@ -3,6 +3,7 @@ use std::{
     fmt,
     hash::{Hash, Hasher},
     ops::Deref,
+    ptr,
 };
 
 use crate::{
@@ -57,6 +58,7 @@ macro_rules! make_ptr {
 }
 
 /// An immutable pointer to a value in allocated memory
+#[repr(transparent)]
 #[derive(Debug, Default)]
 pub struct Ptr<T: PointeeTraits + ?Sized>(PtrImpl<T>);
 
@@ -102,6 +104,19 @@ impl<T: PointeeTraits + ?Sized> From<PtrImpl<T>> for Ptr<T> {
 }
 
 impl<T: PointeeTraits + ?Sized> Ptr<T> {
+    pub(crate) fn from_inner_ref(inner: &PtrImpl<T>) -> &Self {
+        unsafe { &*(ptr::from_ref(inner) as *const Self) }
+    }
+
+    pub(crate) fn from_inner_mut(inner: &mut PtrImpl<T>) -> &mut Self {
+        unsafe { &mut *(ptr::from_mut(inner) as *mut Self) }
+    }
+
+    #[inline]
+    pub(crate) fn into_inner(self) -> PtrImpl<T> {
+        self.0
+    }
+
     /// Converts from the internal pointer implementation to a `Ptr`.
     ///
     /// This is also available as a `From` implementation, but using this

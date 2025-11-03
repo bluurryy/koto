@@ -14,6 +14,7 @@ assert_mutually_exclusive_features!("arc", "rc", "agc", "gc");
 
 mod address;
 mod macros;
+mod opt_ptr;
 mod pointee_traits;
 mod ptr;
 mod ptr_impl;
@@ -23,6 +24,7 @@ mod small_vec;
 
 pub use address::Address;
 pub use koto_derive::KotoTrace;
+pub use opt_ptr::{OptPtr, OptPtrMut};
 pub use pointee_traits::PointeeTraits;
 pub use ptr::*;
 pub use ptr_mut::*;

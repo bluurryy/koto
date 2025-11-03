@@ -48,7 +48,7 @@ derive_more = "2.0.1"
 # Derive macro to get the name of a struct, enum or enum variant
 derive-name = "1.1.0"
 # A concurrent cycle-tracking garbage collector.
-dumpster = { git = "https://github.com/claytonwramsey/dumpster" }
+dumpster = { git = "https://github.com/bluurryy/dumpster", branch = "optional-gc" }
 # Normalize Windows paths to the most compatible format
 dunce = "1.0.2"
 # A small cross-platform library for retrieving random data from system source

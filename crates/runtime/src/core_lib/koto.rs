@@ -20,7 +20,7 @@ pub fn make_module() -> KMap {
         [KValue::Map(m)] => {
             let result = KMap::with_contents(
                 m.data().clone(),
-                m.meta_map().map(|meta| meta.borrow().clone()),
+                m.meta_map().as_ref().map(|meta| meta.borrow().clone()),
             );
             Ok(result.into())
         }

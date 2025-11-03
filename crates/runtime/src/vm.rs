@@ -7,7 +7,7 @@ use crate::{
 };
 use instant::Instant;
 use koto_bytecode::{Chunk, Instruction, InstructionReader, ModuleLoader};
-use koto_memory::Untrace;
+use koto_memory::{OptPtr, Untrace};
 use koto_parser::{
     ConstantIndex, MetaKeyId, StringAlignment, StringFormatOptions, StringFormatRepresentation,
 };
@@ -267,7 +267,7 @@ impl KotoVm {
             // Provide access to the module's exports
             Some(NonLocals {
                 module_exports: self.exports.clone(),
-                wildcard_imports: None,
+                wildcard_imports: OptPtr::NONE,
             }),
         );
 
@@ -675,7 +675,7 @@ impl KotoVm {
         // to the internal test map data while calling the test functions. Otherwise we'll end up in
         // deadlocks when the map needs to be modified (e.g. in pre or post test functions).
 
-        let (pre_test, post_test, meta_entry_count) = match test_map.meta_map() {
+        let (pre_test, post_test, meta_entry_count) = match test_map.meta_map().as_ref() {
             Some(meta) => {
                 let meta = meta.borrow();
                 (
@@ -690,7 +690,7 @@ impl KotoVm {
         let self_arg = Map(test_map.clone());
 
         for i in 0..meta_entry_count {
-            let meta_entry = test_map.meta_map().and_then(|meta| {
+            let meta_entry = test_map.meta_map().as_ref().and_then(|meta| {
                 meta.borrow()
                     .get_index(i)
                     .map(|(key, value)| (key.clone(), value.clone()))
@@ -1594,12 +1594,12 @@ impl KotoVm {
                 };
 
                 let context = if captures.is_some() || non_locals.is_some() {
-                    Some(Ptr::from(FunctionContext {
+                    OptPtr::some(Ptr::from(FunctionContext {
                         captures,
                         non_locals,
                     }))
                 } else {
-                    None
+                    OptPtr::NONE
                 };
 
                 let function = KFunction::new(
@@ -1749,7 +1749,7 @@ impl KotoVm {
             (Map(a), Map(b)) => {
                 let mut data = a.data().clone();
                 data.extend(b.data().iter().map(|(k, v)| (k.clone(), v.clone())));
-                let meta = match (a.meta_map(), b.meta_map()) {
+                let meta = match (a.meta_map().as_ref(), b.meta_map().as_ref()) {
                     (None, None) => None,
                     (Some(meta_a), None) => Some(meta_a.borrow().clone()),
                     (None, Some(meta_b)) => Some(meta_b.borrow().clone()),
@@ -4017,13 +4017,13 @@ impl Frame {
 #[derive(Clone, Default, KotoTrace)]
 #[koto(runtime = crate)]
 pub struct NonLocals {
-    wildcard_imports: Option<Ptr<Vec<KValue>>>,
+    wildcard_imports: OptPtr<Vec<KValue>>,
     module_exports: KMap,
 }
 
 impl NonLocals {
     fn get(&self, name: &str) -> Option<KValue> {
-        if let Some(wildcard_imports) = &self.wildcard_imports {
+        if let Some(wildcard_imports) = self.wildcard_imports.as_ref() {
             // Check any wildcard imports in reverse order (most recent import takes precedence)
             for wildcard_import in wildcard_imports.iter().rev() {
                 let result = match wildcard_import {

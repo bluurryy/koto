@@ -16,6 +16,18 @@ exclusive_feature_select! {
 }
 
 exclusive_feature_select! {
+    "rc" | "arc" => {
+        pub(crate) type OptPtrImpl<T> = Option<PtrImpl<T>>;
+    }
+    "gc" => {
+        pub(crate) type OptPtrImpl<T> = dumpster::unsync::OptionGc<T>;
+    }
+    "agc" => {
+        pub(crate) type OptPtrImpl<T> = dumpster::sync::OptionGc<T>;
+    }
+}
+
+exclusive_feature_select! {
     "rc" | "gc" => {
         pub(crate) type CellImpl<T> = std::cell::RefCell<T>;
         pub(crate) type BorrowImpl<'a, T> = std::cell::Ref<'a, T>;

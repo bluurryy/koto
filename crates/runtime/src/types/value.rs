@@ -83,7 +83,7 @@ impl KValue {
                     .iter()
                     .map(|(k, v)| v.deep_copy().map(|v| (k.clone(), v)))
                     .collect::<Result<_>>()?;
-                let meta = m.meta_map().map(|meta| meta.borrow().clone());
+                let meta = m.meta_map().as_ref().map(|meta| meta.borrow().clone());
                 KMap::with_contents(data, meta).into()
             }
             KValue::Iterator(i) => i.make_copy()?.into(),
@@ -435,6 +435,18 @@ mod tests {
     #[test]
     #[cfg(target_pointer_width = "64")]
     fn test_value_mem_size() {
+        let ptr_impl = if cfg!(feature = "rc") {
+            "rc"
+        } else if cfg!(feature = "arc") {
+            "arc"
+        } else if cfg!(feature = "gc") {
+            "gc"
+        } else if cfg!(feature = "agc") {
+            "agc"
+        } else {
+            "unknown"
+        };
+
         macro_rules! assert_size {
             ($ty:ty, $($expected:tt)*) => {
                 let ty = stringify!($ty);
@@ -443,7 +455,8 @@ mod tests {
 
                 assert!(
                     actual == expected,
-                    "expected the size of `{ty}` to be {expected} but it is {actual}",
+                    "expected the size of `{ty}` to be {expected} but it is {actual} \
+                    with \"{ptr_impl}\"",
                 )
             };
         }
@@ -453,38 +466,11 @@ mod tests {
         // and has a niche which is then usable as the niche for KValue.
         assert_size!(KString, if cfg!(feature = "agc") { 24 } else { 16 });
         assert_size!(KList, if cfg!(feature = "agc") { 16 } else { 8 });
-        assert_size!(
-            KMap,
-            if cfg!(feature = "agc") {
-                40
-            } else if cfg!(feature = "gc") {
-                24
-            } else {
-                16
-            }
-        );
+        assert_size!(KMap, if cfg!(feature = "agc") { 32 } else { 16 });
         assert_size!(KString, if cfg!(feature = "agc") { 24 } else { 16 });
         assert_size!(KObject, if cfg!(feature = "agc") { 24 } else { 16 });
-        assert_size!(
-            KFunction,
-            if cfg!(feature = "agc") {
-                48
-            } else if cfg!(feature = "gc") {
-                32
-            } else {
-                24
-            }
-        );
-        assert_size!(
-            KValue,
-            if cfg!(feature = "agc") {
-                48
-            } else if cfg!(feature = "gc") {
-                32
-            } else {
-                24
-            }
-        );
+        assert_size!(KFunction, if cfg!(feature = "agc") { 40 } else { 24 });
+        assert_size!(KValue, if cfg!(feature = "agc") { 40 } else { 24 });
     }
 
     #[test]

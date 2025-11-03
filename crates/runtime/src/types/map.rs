@@ -1,5 +1,6 @@
 use crate::{Borrow, BorrowMut, Error, PtrMut, Result, prelude::*};
 use indexmap::{Equivalent, IndexMap};
+use koto_memory::OptPtrMut;
 use rustc_hash::FxHasher;
 use std::{
     hash::{BuildHasherDefault, Hash, Hasher},
@@ -125,7 +126,7 @@ unsafe impl<V: koto_memory::Visitor> koto_memory::TraceWith<V> for ValueMap {
 #[koto(runtime = crate)]
 pub struct KMap {
     data: PtrMut<ValueMap>,
-    meta: Option<PtrMut<MetaMap>>,
+    meta: OptPtrMut<MetaMap>,
 }
 
 impl KMap {
@@ -155,7 +156,7 @@ impl KMap {
     pub fn with_contents(data: ValueMap, meta: Option<MetaMap>) -> Self {
         Self {
             data: data.into(),
-            meta: meta.map(PtrMut::from),
+            meta: meta.map(PtrMut::from).into(),
         }
     }
 
@@ -180,14 +181,14 @@ impl KMap {
     /// Provides a reference to the KMap's meta map
     ///
     /// This is returned as a reference to the meta map's PtrMut to allow for cloning.
-    pub fn meta_map(&self) -> Option<&PtrMut<MetaMap>> {
-        self.meta.as_ref()
+    pub fn meta_map(&self) -> &OptPtrMut<MetaMap> {
+        &self.meta
     }
 
     /// Sets the KMap's meta map
     ///
     /// Note that this change isn't shared with maps that share the same data.
-    pub fn set_meta_map(&mut self, meta: Option<PtrMut<MetaMap>>) {
+    pub fn set_meta_map(&mut self, meta: OptPtrMut<MetaMap>) {
         self.meta = meta;
     }
 
@@ -275,7 +276,7 @@ impl KMap {
     /// Removes all contents from the data map, and removes the meta map
     pub fn clear(&mut self) {
         self.data_mut().clear();
-        self.meta = None;
+        self.meta = OptPtrMut::NONE;
     }
 
     /// Returns true if the provided KMap occupies the same memory address

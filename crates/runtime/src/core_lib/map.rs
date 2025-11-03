@@ -328,7 +328,7 @@ pub fn make_module() -> KMap {
         match map_instance_and_args(ctx, expected_error)? {
             (KValue::Map(data), [KValue::Map(meta)]) => {
                 let mut data = data.clone();
-                data.set_meta_map(meta.meta_map().cloned());
+                data.set_meta_map(meta.meta_map().clone());
                 Ok(data.into())
             }
             (instance, args) => unexpected_args_after_instance(expected_error, instance, args),

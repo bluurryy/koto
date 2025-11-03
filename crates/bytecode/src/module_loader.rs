@@ -1,6 +1,6 @@
 use crate::{Chunk, Compiler, CompilerError, CompilerSettings};
 use dunce::canonicalize;
-use koto_memory::{KotoTrace, Ptr};
+use koto_memory::{KotoTrace, OptPtr, Ptr};
 use koto_parser::{KString, Span, format_source_excerpt};
 use rustc_hash::FxHasher;
 use std::{
@@ -39,7 +39,7 @@ pub struct ModuleLoaderError {
     /// The error
     pub error: Ptr<ModuleLoaderErrorKind>,
     /// The source of the error
-    pub source: Option<Ptr<LoaderErrorSource>>,
+    pub source: OptPtr<LoaderErrorSource>,
 }
 
 /// The source of a [ModuleLoaderError]
@@ -67,7 +67,7 @@ impl ModuleLoaderError {
         };
         Self {
             error: ModuleLoaderErrorKind::from(error).into(),
-            source: Some(source.into()),
+            source: OptPtr::some(source.into()),
         }
     }
 
@@ -83,7 +83,7 @@ impl ModuleLoaderError {
 impl fmt::Display for ModuleLoaderError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "{}.", self.error)?;
-        if let Some(source) = &self.source {
+        if let Some(source) = self.source.as_ref() {
             write!(
                 f,
                 "{}",
@@ -100,7 +100,7 @@ impl From<ModuleLoaderErrorKind> for ModuleLoaderError {
     fn from(error: ModuleLoaderErrorKind) -> Self {
         Self {
             error: error.into(),
-            source: None,
+            source: OptPtr::NONE,
         }
     }
 }

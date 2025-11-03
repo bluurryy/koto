@@ -85,7 +85,7 @@ pub fn make_module() -> KMap {
     meta.insert(MetaKey::Type, "color".into());
     meta.add_fn(MetaKey::Call, meta_call);
 
-    result.set_meta_map(Some(meta.into()));
+    result.set_meta_map(Some(meta.into()).into());
     result
 }
 
