@@ -18,9 +18,11 @@ proc-macro = true
 default = ["rc"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
+# To use any other than `rc`, default features must be disabled.
 arc = []
+agc = []
 rc = []
+gc = []
 
 [dependencies]
 indexmap = { workspace = true }

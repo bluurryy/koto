@@ -4,7 +4,8 @@ use koto_runtime::{Borrow, PtrMut, Result, prelude::*};
 ///
 /// [KotoWrite] is implemented for OutputCapture, allowing it to be used as stdout and stderr
 /// for the Koto runtime.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, KotoTrace)]
+#[koto(runtime = koto_runtime)]
 pub struct OutputCapture {
     output: PtrMut<String>,
 }

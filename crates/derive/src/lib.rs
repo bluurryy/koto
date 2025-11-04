@@ -2,13 +2,11 @@
 
 #![warn(missing_docs)]
 
-#[cfg(all(feature = "arc", feature = "rc"))]
-compile_error!("A single memory management feature can be enabled at a time");
-
 mod attributes;
 mod function;
 mod koto_copy;
 mod koto_impl;
+mod koto_trace;
 mod koto_type;
 
 use proc_macro::TokenStream;
@@ -194,6 +192,12 @@ pub fn derive_koto_type(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(KotoCopy, attributes(koto))]
 pub fn derive_koto_copy(input: TokenStream) -> TokenStream {
     koto_copy::derive_koto_copy(input)
+}
+
+/// TODO
+#[proc_macro_derive(KotoTrace, attributes(koto))]
+pub fn derive_koto_trace(input: TokenStream) -> TokenStream {
+    koto_trace::derive_koto_trace(input)
 }
 
 // NOTE: The documentation examples are tested in `crates/koto/tests/derive_koto_impl_doc.rs`

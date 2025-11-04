@@ -1150,7 +1150,7 @@ fn add_access_getter(ctx: &Context) -> Result<()> {
         // Non-generic types can cache the entries map in a `thread_local`/`LazyLock`
         let ty = ctx.ty();
 
-        if cfg!(feature = "rc") {
+        if cfg!(any(feature = "rc", feature = "gc")) {
             quote! {
                 #[automatically_derived]
                 fn #name(key: &str) -> Option<#runtime::__private::MethodOrField<#ty>> {
@@ -1168,7 +1168,7 @@ fn add_access_getter(ctx: &Context) -> Result<()> {
                     ENTRIES.with(|entries| entries.get(key).cloned())
                 }
             }
-        } else if cfg!(feature = "arc") {
+        } else if cfg!(any(feature = "arc", feature = "agc")) {
             quote! {
                 #[automatically_derived]
                 fn #name(key: &str) -> Option<#runtime::__private::MethodOrField<#ty>> {
@@ -1191,7 +1191,7 @@ fn add_access_getter(ctx: &Context) -> Result<()> {
         // Rust doesn't support generic statics, so entries are cached in a hashmap with the
         // concrete instantiation type used as the key.
 
-        if cfg!(feature = "rc") {
+        if cfg!(any(feature = "rc", feature = "gc")) {
             quote! {
                 #[automatically_derived]
                 fn #name(key: &str)
@@ -1225,7 +1225,7 @@ fn add_access_getter(ctx: &Context) -> Result<()> {
                         })
                 }
             }
-        } else if cfg!(feature = "arc") {
+        } else if cfg!(any(feature = "arc", feature = "agc")) {
             quote! {
                 #[automatically_derived]
                 fn #name(key: &str)
@@ -1282,7 +1282,7 @@ fn add_access_assign_getter(ctx: &Context) -> Result<()> {
     let getter_fn = if ctx.impl_item.generics.params.is_empty() {
         // Non-generic types can cache the entries map in a `thread_local`/`LazyLock`
 
-        if cfg!(feature = "rc") {
+        if cfg!(any(feature = "rc", feature = "gc")) {
             quote! {
                 #[automatically_derived]
                 fn #name(key: &str) -> Option<fn(&mut #ty, &KValue) -> #runtime::Result<()>> {
@@ -1300,7 +1300,7 @@ fn add_access_assign_getter(ctx: &Context) -> Result<()> {
                     ENTRIES.with(|entries| entries.get(key).cloned())
                 }
             }
-        } else if cfg!(feature = "arc") {
+        } else if cfg!(any(feature = "arc", feature = "agc")) {
             quote! {
                 #[automatically_derived]
                 fn #name(key: &str) -> Option<fn(&mut #ty, &KValue) -> #runtime::Result<()>> {
@@ -1323,7 +1323,7 @@ fn add_access_assign_getter(ctx: &Context) -> Result<()> {
         // Rust doesn't support generic statics, so entries are cached in a hashmap with the
         // concrete instantiation type used as the key.
 
-        if cfg!(feature = "rc") {
+        if cfg!(any(feature = "rc", feature = "gc")) {
             quote! {
                 #[automatically_derived]
                 fn #name(key: &str) -> Option<fn(&mut dyn ::std::any::Any, &#runtime::KValue)
@@ -1357,7 +1357,7 @@ fn add_access_assign_getter(ctx: &Context) -> Result<()> {
                         })
                 }
             }
-        } else if cfg!(feature = "arc") {
+        } else if cfg!(any(feature = "arc", feature = "agc")) {
             quote! {
                 #[automatically_derived]
                 fn #name(key: &str)
@@ -1479,7 +1479,7 @@ macro_rules! no_feature_set {
     () => {
         return Err(Error::new(
             Span::call_site(),
-            r#"Either the \"rc\" or \"arc\" feature must be enabled!"#,
+            r#"Either the "rc", "arc", "gc", or "agc" feature must be enabled!"#,
         ))
     };
 }

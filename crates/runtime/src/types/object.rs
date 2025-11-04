@@ -1,5 +1,6 @@
-use crate::{Borrow, BorrowMut, ErrorKind, PtrMut, Result, prelude::*};
 use std::{any::Any, fmt, marker::PhantomData, ops::Deref};
+
+use crate::{Borrow, BorrowMut, ErrorKind, PtrMut, Result, prelude::*};
 
 /// A trait for specifying a Koto object's type
 ///
@@ -116,7 +117,9 @@ pub trait KotoAccess: KotoType {
 /// ```
 ///
 /// See also: [KObject].
-pub trait KotoObject: KotoType + KotoCopy + KotoAccess + KotoSend + KotoSync + Any {
+pub trait KotoObject:
+    KotoType + KotoCopy + KotoAccess + KotoSend + KotoSync + KotoTrace + Any
+{
     /// Called when the object should be displayed as a string, e.g. by `io.print`
     ///
     /// By default, the object's type is used as the display string.
@@ -445,7 +448,8 @@ pub trait KotoObject: KotoType + KotoCopy + KotoAccess + KotoSend + KotoSync + A
 }
 
 /// A [`KotoObject`] wrapper used in the Koto runtime
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KObject {
     object: PtrMut<dyn KotoObject>,
 }
@@ -532,8 +536,8 @@ impl fmt::Debug for KObject {
 ///
 /// This is useful for reducing repetitive duplication in bounds when implementing a generic
 /// [KotoObject] type.
-pub trait KotoField: Clone + KotoSend + KotoSync + 'static {}
-impl<T> KotoField for T where T: Clone + KotoSend + KotoSync + 'static {}
+pub trait KotoField: Clone + KotoSend + KotoSync + KotoTrace + 'static {}
+impl<T> KotoField for T where T: Clone + KotoSend + KotoSync + KotoTrace + 'static {}
 
 /// Context provided to a function that implements an object method
 ///

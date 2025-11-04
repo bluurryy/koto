@@ -918,7 +918,7 @@ pub(crate) fn iter_output_to_result(iterator_output: Option<Output>) -> Result<O
 }
 
 /// The output type used by operations like `iterator.next()` and `next_back()`
-#[derive(Clone, KotoCopy, KotoType)]
+#[derive(Clone, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = crate)]
 pub struct IteratorOutput(KValue);
 

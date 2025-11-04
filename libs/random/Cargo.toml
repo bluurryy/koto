@@ -15,9 +15,31 @@ repository.workspace = true
 default = ["rc"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
-arc = ["koto_runtime/arc"]
-rc = ["koto_runtime/rc"]
+# To use any other than `rc`, default features must be disabled.
+arc = [
+    "koto_runtime/arc",
+    "koto_derive/arc",
+    "koto_test_utils/arc",
+    "koto_memory/arc",
+]
+agc = [
+    "koto_runtime/agc",
+    "koto_derive/agc",
+    "koto_test_utils/agc",
+    "koto_memory/agc",
+]
+rc = [
+    "koto_runtime/rc",
+    "koto_derive/rc",
+    "koto_test_utils/rc",
+    "koto_memory/rc",
+]
+gc = [
+    "koto_runtime/gc",
+    "koto_derive/gc",
+    "koto_test_utils/gc",
+    "koto_memory/gc",
+]
 
 [dependencies]
 koto_runtime = { workspace = true }
@@ -32,3 +54,4 @@ getrandom = { workspace = true }
 [dev-dependencies]
 koto_derive = { workspace = true }
 koto_test_utils = { workspace = true }
+koto_memory = { workspace = true }

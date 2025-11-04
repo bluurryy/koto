@@ -39,7 +39,6 @@ macro_rules! impl_compound_assign_op {
 #[macro_export]
 macro_rules! impl_arithmetic_ops {
     ($type:ident)=> {
-        use $crate::{impl_arithmetic_op, impl_compound_assign_op};
         impl_arithmetic_op!($type, Add, add, +);
         impl_arithmetic_op!($type, Sub, sub, -);
         impl_arithmetic_op!($type, Mul, mul, *);

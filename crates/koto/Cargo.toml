@@ -15,9 +15,43 @@ repository.workspace = true
 default = ["rc", "serde"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
-arc = ["koto_runtime/arc"]
-rc = ["koto_runtime/rc"]
+# To use any other than `rc`, default features must be disabled.
+arc = [
+    "koto_bytecode/arc",
+    "koto_parser/arc",
+    "koto_runtime/arc",
+    "koto_serde/arc",
+    "koto_memory/arc",
+    "koto_geometry/arc",
+    "koto_test_utils/arc",
+]
+agc = [
+    "koto_bytecode/agc",
+    "koto_parser/agc",
+    "koto_runtime/agc",
+    "koto_serde/agc",
+    "koto_memory/agc",
+    "koto_geometry/agc",
+    "koto_test_utils/agc",
+]
+rc = [
+    "koto_bytecode/rc",
+    "koto_parser/rc",
+    "koto_runtime/rc",
+    "koto_serde/rc",
+    "koto_memory/rc",
+    "koto_geometry/rc",
+    "koto_test_utils/rc",
+]
+gc = [
+    "koto_bytecode/gc",
+    "koto_parser/gc",
+    "koto_runtime/gc",
+    "koto_serde/gc",
+    "koto_memory/gc",
+    "koto_geometry/gc",
+    "koto_test_utils/gc",
+]
 
 # Enable serde support
 serde = ["koto_serde"]
@@ -27,12 +61,13 @@ koto_bytecode = { workspace = true }
 koto_parser = { workspace = true }
 koto_runtime = { workspace = true }
 koto_serde = { workspace = true, optional = true }
+koto_memory = { workspace = true }
 
 thiserror = { workspace = true }
 
 [dev-dependencies]
-koto_geometry = { path = "../../libs/geometry", default-features = false }
-koto_test_utils = { path = "../test_utils", default-features = false }
+koto_geometry = { workspace = true }
+koto_test_utils = { workspace = true }
 
 anyhow = { workspace = true }
 criterion = { workspace = true }

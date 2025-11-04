@@ -1,13 +1,14 @@
 use crate::{KList, vm::NonLocals};
 use koto_bytecode::{Chunk, FunctionFlags};
-use koto_memory::Ptr;
+use koto_memory::{KotoTrace, Ptr};
 
 /// A Koto function
 ///
 /// See also:
 /// * [`KNativeFunction`](crate::KNativeFunction)
 /// * [`KValue::Function`](crate::KValue::Function)
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KFunction {
     /// The [Chunk] in which the function can be found.
     pub chunk: Ptr<Chunk>,
@@ -75,6 +76,8 @@ impl KFunction {
     }
 }
 
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct FunctionContext {
     /// The optional list of captures that should be copied into scope when the function is called.
     ///
@@ -98,7 +101,8 @@ pub struct FunctionContext {
 // and must be exactly 24 bytes for the compiler to find potential niches to use
 // for KValue. Padding bytes aren't allowed to be used for niche optimization,
 // so it's necessary to pad out KFunction with an optimizable value.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, KotoTrace)]
+#[koto(runtime = crate)]
 #[repr(u8)]
 enum Niche {
     #[default]

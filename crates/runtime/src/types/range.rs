@@ -9,10 +9,12 @@ use std::{
 /// The integer range type used by the Koto runtime
 ///
 /// See [`KValue::Range`]
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KRange(Inner);
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, KotoTrace)]
+#[koto(runtime = crate)]
 enum Inner {
     Unbounded,
     From {
@@ -31,7 +33,8 @@ enum Inner {
     BoundedLarge(Ptr<Bounded64>),
 }
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, KotoTrace)]
+#[koto(runtime = crate)]
 struct Bounded64 {
     start: i64,
     end: i64,
@@ -376,7 +379,10 @@ mod tests {
 
     #[test]
     fn size_of() {
-        assert_eq!(std::mem::size_of::<KRange>(), 16);
+        assert_eq!(
+            std::mem::size_of::<KRange>(),
+            if cfg!(feature = "agc") { 24 } else { 16 }
+        );
     }
 
     #[test]

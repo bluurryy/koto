@@ -3,18 +3,18 @@
 //! When Koto is being used in a single-threaded context [KotoSend] and [KotoSync] are empty
 //! traits implemented for all types.
 
-#[cfg(feature = "rc")]
+#[cfg(any(feature = "rc", feature = "gc"))]
 mod traits {
     /// An empty trait for single-threaded contexts, implemented for all types
     pub trait KotoSend {}
-    impl<T> KotoSend for T {}
+    impl<T: ?Sized> KotoSend for T {}
 
     /// An empty trait for single-threaded contexts, implemented for all types
     pub trait KotoSync {}
-    impl<T> KotoSync for T {}
+    impl<T: ?Sized> KotoSync for T {}
 }
 
-#[cfg(not(feature = "rc"))]
+#[cfg(not(any(feature = "rc", feature = "gc")))]
 mod traits {
     pub use Send as KotoSend;
     pub use Sync as KotoSync;

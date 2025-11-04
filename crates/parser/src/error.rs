@@ -1,11 +1,13 @@
 use koto_lexer::Span;
+use koto_memory::KotoTrace;
 use std::fmt::Write;
 use thiserror::Error;
 
 use crate::string_format_options::StringFormatError;
 
 /// An error that represents a problem with the Parser's internal logic, rather than a user error
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum InternalError {
     #[error("there are more nodes in the program than the AST can support")]
@@ -34,7 +36,8 @@ pub enum InternalError {
 ///
 /// Having these errors separated out from [SyntaxError] is useful when working with interactive
 /// input, where an indented continuation can be started in response to an indentation error.
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum ExpectedIndentation {
     #[error("expected expression after assignment operator")]
@@ -70,7 +73,8 @@ pub enum ExpectedIndentation {
 }
 
 /// A syntax error encountered by the [Parser][crate::Parser]
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum SyntaxError {
     #[error("ascii value out of range, the maximum is \\x7f")]
@@ -222,7 +226,8 @@ pub enum SyntaxError {
 }
 
 /// See [`Error`][crate::Error]
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum ErrorKind {
     #[error(transparent)]
@@ -236,7 +241,8 @@ pub enum ErrorKind {
 }
 
 /// An error that can be produced by the [Parser](crate::Parser)
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[error("{error}")]
 pub struct Error {
     /// The error itself

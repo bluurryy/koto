@@ -63,6 +63,13 @@ pub fn make_module() -> KMap {
 #[koto(runtime = crate)]
 pub struct DateTime(chrono::DateTime<FixedOffset>);
 
+#[cfg(any(feature = "gc", feature = "agc"))]
+unsafe impl<V: koto_memory::Visitor> koto_memory::TraceWith<V> for DateTime {
+    fn accept(&self, _visitor: &mut V) -> core::result::Result<(), ()> {
+        Ok(())
+    }
+}
+
 #[koto_impl(runtime = crate)]
 impl DateTime {
     fn with_chrono_datetime(time: chrono::DateTime<FixedOffset>) -> KValue {
@@ -153,7 +160,7 @@ impl KotoObject for DateTime {
 }
 
 /// The underlying data type returned by `os.start_timer()`
-#[derive(Clone, Debug, KotoCopy, KotoType)]
+#[derive(Clone, Debug, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = crate)]
 pub struct Timer(Instant);
 

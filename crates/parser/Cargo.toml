@@ -15,9 +15,11 @@ repository.workspace = true
 default = ["rc"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
-arc = ["koto_memory/arc"]
-rc = ["koto_memory/rc"]
+# To use any other than `rc`, default features must be disabled.
+arc = ["koto_lexer/arc", "koto_memory/arc"]
+agc = ["koto_lexer/agc", "koto_memory/agc"]
+rc = ["koto_lexer/rc", "koto_memory/rc"]
+gc = ["koto_lexer/gc", "koto_memory/gc"]
 
 # Panicking be useful during development, e.g. to see the backtrace that led to the error
 panic_on_parser_error = []

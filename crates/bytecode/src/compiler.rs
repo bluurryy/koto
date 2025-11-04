@@ -4,6 +4,7 @@ use crate::{
 };
 use circular_buffer::CircularBuffer;
 use derive_name::VariantName;
+use koto_memory::KotoTrace;
 use koto_parser::{
     Ast, AstBinaryOp, AstFor, AstIf, AstIndex, AstNode, AstTry, AstUnaryOp, AstVec, ChainNode,
     ConstantIndex, Function, ImportItem, KString, MetaKeyId, Node, Parser, Span, StringContents,
@@ -13,7 +14,8 @@ use smallvec::{SmallVec, smallvec};
 use thiserror::Error;
 
 /// The different error types that can be thrown by the Koto runtime
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 enum ErrorKind {
     #[error("expected {expected}, found '{}'", unexpected.variant_name())]
@@ -97,7 +99,8 @@ enum ErrorKind {
 type Result<T> = std::result::Result<T, CompilerError>;
 
 /// The error type used to report errors during compilation
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[error("{error}")]
 pub struct CompilerError {
     /// The error's message
@@ -3944,7 +3947,7 @@ impl Compiler {
                         });
                     }
 
-                    Some(patterns.clone())
+                    Some(patterns.0.clone())
                 }
                 Node::Tuple {
                     elements: patterns, ..

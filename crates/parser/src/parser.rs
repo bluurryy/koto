@@ -3,6 +3,7 @@
 use crate::{
     StringFormatOptions,
     ast::{Ast, AstIndex},
+    astvec,
     constant_pool::{ConstantIndex, ConstantPoolBuilder},
     error::{Error, ErrorKind, ExpectedIndentation, InternalError, Result, SyntaxError},
     node::*,

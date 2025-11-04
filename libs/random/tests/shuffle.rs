@@ -3,7 +3,7 @@ use koto_runtime::{Result, prelude::*};
 use koto_test_utils::*;
 use std::{error::Error, fs, path::PathBuf, result::Result as StdResult};
 
-#[derive(Clone, Debug, Default, KotoCopy, KotoType)]
+#[derive(Clone, Debug, Default, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = koto_runtime)]
 struct TestContainer {
     data: Vec<KValue>,

@@ -7,7 +7,8 @@ use std::{
 };
 
 /// The core Value type for Koto
-#[derive(Clone, Default)]
+#[derive(Clone, Default, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum KValue {
     /// The default type representing the absence of a value
     #[default]
@@ -341,7 +342,8 @@ where
 ///
 /// See [Value::TemporaryTuple]
 #[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct RegisterSlice {
     pub start: u8,
     pub count: u8,
@@ -431,16 +433,58 @@ mod tests {
     use super::*;
 
     #[test]
+    #[cfg(target_pointer_width = "64")]
     fn test_value_mem_size() {
+        macro_rules! assert_size {
+            ($ty:ty, $($expected:tt)*) => {
+                let ty = stringify!($ty);
+                let expected = $($expected)*;
+                let actual = size_of::<$ty>();
+
+                assert!(
+                    actual == expected,
+                    "expected the size of `{ty}` to be {expected} but it is {actual}",
+                )
+            };
+        }
+
         // All KValue variants except for KValue::Function` should have a size of <= 16 bytes.
         // KFunction has a size of 24 bytes, but is the single variant of that size,
         // and has a niche which is then usable as the niche for KValue.
-        assert!(size_of::<KString>() <= 16);
-        assert!(size_of::<KList>() <= 16);
-        assert!(size_of::<KMap>() <= 16);
-        assert!(size_of::<KObject>() <= 16);
-        assert!(size_of::<KFunction>() <= 24);
-        assert!(size_of::<KValue>() <= 24);
+        assert_size!(KString, if cfg!(feature = "agc") { 24 } else { 16 });
+        assert_size!(KList, if cfg!(feature = "agc") { 16 } else { 8 });
+        assert_size!(
+            KMap,
+            if cfg!(feature = "agc") {
+                40
+            } else if cfg!(feature = "gc") {
+                24
+            } else {
+                16
+            }
+        );
+        assert_size!(KString, if cfg!(feature = "agc") { 24 } else { 16 });
+        assert_size!(KObject, if cfg!(feature = "agc") { 24 } else { 16 });
+        assert_size!(
+            KFunction,
+            if cfg!(feature = "agc") {
+                48
+            } else if cfg!(feature = "gc") {
+                32
+            } else {
+                24
+            }
+        );
+        assert_size!(
+            KValue,
+            if cfg!(feature = "agc") {
+                48
+            } else if cfg!(feature = "gc") {
+                32
+            } else {
+                24
+            }
+        );
     }
 
     #[test]

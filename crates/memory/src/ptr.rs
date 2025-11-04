@@ -5,7 +5,11 @@ use std::{
     ops::Deref,
 };
 
-use crate::{Address, ptr_impl::PtrImpl};
+use crate::{
+    Address, PointeeTraits,
+    macros::{exclusive_feature_select, exclusive_feature_select_expr},
+    ptr_impl::PtrImpl,
+};
 
 /// Provides access to a shared value that is initialized on first use
 ///
@@ -48,33 +52,65 @@ macro_rules! lazy {
 #[macro_export]
 macro_rules! make_ptr {
     ($value:expr) => {
-        $crate::__make_ptr!($value)
+        $crate::Ptr::from_inner($crate::__make_ptr!($value))
     };
 }
 
 /// An immutable pointer to a value in allocated memory
 #[derive(Debug, Default)]
-pub struct Ptr<T: ?Sized>(PtrImpl<T>);
+pub struct Ptr<T: PointeeTraits + ?Sized>(PtrImpl<T>);
 
-impl<T> From<T> for Ptr<T> {
+exclusive_feature_select! {
+    "gc" | "agc" => {
+        unsafe impl<V: dumpster::Visitor, T: PointeeTraits + ?Sized> dumpster::TraceWith<V> for Ptr<T> {
+            #[inline]
+            fn accept(&self, visitor: &mut V) -> Result<(), ()> {
+                self.0.accept(visitor)
+            }
+        }
+    }
+}
+
+impl<T: PointeeTraits> From<T> for Ptr<T> {
     fn from(value: T) -> Self {
         Self(value.into())
     }
 }
 
-impl<T: ?Sized> From<Box<T>> for Ptr<T> {
-    fn from(boxed: Box<T>) -> Self {
-        Self(boxed.into())
+// `gc` and `agc` only support `Sized` from impl for `Box<T>`
+exclusive_feature_select! {
+    "rc" | "arc" => {
+        impl<T: PointeeTraits + ?Sized> From<Box<T>> for Ptr<T> {
+            fn from(boxed: Box<T>) -> Self {
+                Self(boxed.into())
+            }
+        }
+    }
+    "gc" | "agc" => {
+        impl<T: PointeeTraits> From<Box<T>> for Ptr<T> {
+            fn from(boxed: Box<T>) -> Self {
+                Self(boxed.into())
+            }
+        }
     }
 }
 
-impl<T: ?Sized> From<PtrImpl<T>> for Ptr<T> {
+impl<T: PointeeTraits + ?Sized> From<PtrImpl<T>> for Ptr<T> {
     fn from(inner: PtrImpl<T>) -> Self {
         Self(inner)
     }
 }
 
-impl<T: ?Sized> Ptr<T> {
+impl<T: PointeeTraits + ?Sized> Ptr<T> {
+    /// Converts from the internal pointer implementation to a `Ptr`.
+    ///
+    /// This is also available as a `From` implementation, but using this
+    /// function helps with type inference.
+    #[doc(hidden)]
+    pub fn from_inner(inner: PtrImpl<T>) -> Self {
+        Self(inner)
+    }
+
     /// Returns true if the two `Ptr`s point to the same allocation
     ///
     /// See also: [`Rc::ptr_eq`] or [`Arc::ptr_eq`]
@@ -94,11 +130,14 @@ impl<T: ?Sized> Ptr<T> {
     ///
     /// Only strong references are counted, weak references don't get added to the result.
     pub fn ref_count(this: &Self) -> usize {
-        PtrImpl::strong_count(&this.0)
+        exclusive_feature_select_expr! {
+            "rc" | "arc" => { PtrImpl::strong_count(&this.0) }
+            "gc" | "agc" => { PtrImpl::ref_count(&this.0).get() }
+        }
     }
 }
 
-impl<T: Clone> Ptr<T> {
+impl<T: PointeeTraits + Clone> Ptr<T> {
     /// Makes a mutable reference into the owned `T`
     ///
     /// If the pointer has the only reference to the value, then the reference will be returned.
@@ -114,7 +153,7 @@ impl<T: Clone> Ptr<T> {
     }
 }
 
-impl<T: ?Sized> Deref for Ptr<T> {
+impl<T: PointeeTraits + ?Sized> Deref for Ptr<T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -122,20 +161,20 @@ impl<T: ?Sized> Deref for Ptr<T> {
     }
 }
 
-impl<T: ?Sized> Clone for Ptr<T> {
+impl<T: PointeeTraits + ?Sized> Clone for Ptr<T> {
     fn clone(&self) -> Self {
         Self(PtrImpl::clone(&self.0))
     }
 }
 
-impl<T: Clone> From<&[T]> for Ptr<[T]> {
+impl<T: PointeeTraits + Clone> From<&[T]> for Ptr<[T]> {
     #[inline]
     fn from(value: &[T]) -> Self {
         Self(PtrImpl::from(value))
     }
 }
 
-impl<T> From<Vec<T>> for Ptr<[T]> {
+impl<T: PointeeTraits> From<Vec<T>> for Ptr<[T]> {
     #[inline]
     fn from(value: Vec<T>) -> Self {
         Self(PtrImpl::from(value))
@@ -156,34 +195,34 @@ impl From<String> for Ptr<str> {
     }
 }
 
-impl<T: ?Sized + PartialEq> PartialEq for Ptr<T> {
+impl<T: PointeeTraits + ?Sized + PartialEq> PartialEq for Ptr<T> {
     fn eq(&self, other: &Self) -> bool {
         PtrImpl::eq(&self.0, &other.0)
     }
 }
 
-impl<T: ?Sized + Eq> Eq for Ptr<T> {}
+impl<T: PointeeTraits + ?Sized + Eq> Eq for Ptr<T> {}
 
-impl<T: ?Sized + fmt::Display> fmt::Display for Ptr<T> {
+impl<T: PointeeTraits + ?Sized + fmt::Display> fmt::Display for Ptr<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl<T: ?Sized + Hash> Hash for Ptr<T> {
+impl<T: PointeeTraits + ?Sized + Hash> Hash for Ptr<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash(state)
     }
 }
 
-impl<T: ?Sized + Ord> Ord for Ptr<T> {
+impl<T: PointeeTraits + ?Sized + Ord> Ord for Ptr<T> {
     #[inline]
     fn cmp(&self, other: &Ptr<T>) -> Ordering {
         self.0.cmp(&other.0)
     }
 }
 
-impl<T: ?Sized + PartialOrd> PartialOrd for Ptr<T> {
+impl<T: PointeeTraits + ?Sized + PartialOrd> PartialOrd for Ptr<T> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.0.partial_cmp(&other.0)
     }

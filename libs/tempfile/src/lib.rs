@@ -3,6 +3,7 @@
 use koto_runtime::{
     KMap,
     core_lib::io::{File, map_io_err},
+    memory::Untrace,
     unexpected_args,
 };
 use tempfile::NamedTempFile;
@@ -15,7 +16,7 @@ pub fn make_module() -> KMap {
             [] => match NamedTempFile::new().map_err(map_io_err) {
                 Ok(file) => {
                     let path = file.path().to_path_buf();
-                    Ok(File::system_file(file, path))
+                    Ok(File::system_file(Untrace(file), path))
                 }
                 Err(e) => Err(e),
             },

@@ -1,8 +1,12 @@
-use crate::{KString, KotoFile, KotoRead, KotoWrite, Result, core_lib::io::map_io_err, lazy};
 use std::io::{self, IsTerminal, Read, Write};
 
+use koto_memory::KotoTrace;
+
+use crate::{KString, KotoFile, KotoRead, KotoWrite, Result, core_lib::io::map_io_err, lazy};
+
 /// The default stdin used in Koto
-#[derive(Default)]
+#[derive(Default, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct DefaultStdin {}
 
 impl KotoFile for DefaultStdin {
@@ -38,7 +42,8 @@ impl KotoRead for DefaultStdin {
 }
 
 /// The default stdout used in Koto
-#[derive(Default)]
+#[derive(Default, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct DefaultStdout {}
 
 impl KotoFile for DefaultStdout {
@@ -70,7 +75,8 @@ impl KotoWrite for DefaultStdout {
 }
 
 /// The default stderr used in Koto
-#[derive(Default)]
+#[derive(Default, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct DefaultStderr {}
 
 impl KotoFile for DefaultStderr {

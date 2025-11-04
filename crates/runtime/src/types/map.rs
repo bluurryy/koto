@@ -2,12 +2,62 @@ use crate::{Borrow, BorrowMut, Error, PtrMut, Result, prelude::*};
 use indexmap::{Equivalent, IndexMap};
 use rustc_hash::FxHasher;
 use std::{
-    hash::{BuildHasherDefault, Hash},
+    hash::{BuildHasherDefault, Hash, Hasher},
     ops::{Deref, DerefMut, RangeBounds},
 };
 
 /// The hasher used throughout the Koto runtime
-pub type KotoHasher = FxHasher;
+#[derive(Default)]
+pub struct KotoHasher(FxHasher);
+
+#[cfg(any(feature = "gc", feature = "agc"))]
+unsafe impl<V: koto_memory::Visitor> koto_memory::TraceWith<V> for KotoHasher {
+    fn accept(&self, _visitor: &mut V) -> core::result::Result<(), ()> {
+        Ok(())
+    }
+}
+
+impl Hasher for KotoHasher {
+    #[inline]
+    fn write(&mut self, bytes: &[u8]) {
+        self.0.write(bytes)
+    }
+
+    #[inline]
+    fn write_u8(&mut self, i: u8) {
+        self.0.write_u8(i)
+    }
+
+    #[inline]
+    fn write_u16(&mut self, i: u16) {
+        self.0.write_u16(i)
+    }
+
+    #[inline]
+    fn write_u32(&mut self, i: u32) {
+        self.0.write_u32(i)
+    }
+
+    #[inline]
+    fn write_u64(&mut self, i: u64) {
+        self.0.write_u64(i)
+    }
+
+    #[inline]
+    fn write_u128(&mut self, i: u128) {
+        self.0.write_u128(i)
+    }
+
+    #[inline]
+    fn write_usize(&mut self, i: usize) {
+        self.0.write_usize(i)
+    }
+
+    #[inline]
+    fn finish(&self) -> u64 {
+        self.0.finish()
+    }
+}
 
 type ValueMapType = IndexMap<ValueKey, KValue, BuildHasherDefault<KotoHasher>>;
 
@@ -58,8 +108,21 @@ impl FromIterator<(ValueKey, KValue)> for ValueMap {
     }
 }
 
+#[cfg(any(feature = "gc", feature = "agc"))]
+unsafe impl<V: koto_memory::Visitor> koto_memory::TraceWith<V> for ValueMap {
+    fn accept(&self, visitor: &mut V) -> core::result::Result<(), ()> {
+        for (key, value) in &self.0 {
+            key.accept(visitor)?;
+            value.accept(visitor)?;
+        }
+
+        self.hasher().accept(visitor)
+    }
+}
+
 /// The core hash map value type used in Koto, containing a [ValueMap] and a [MetaMap]
-#[derive(Clone, Default)]
+#[derive(Clone, Default, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KMap {
     data: PtrMut<ValueMap>,
     meta: Option<PtrMut<MetaMap>>,

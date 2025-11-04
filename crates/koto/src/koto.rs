@@ -1,5 +1,6 @@
 use crate::{Error, Ptr, Result, prelude::*};
 use koto_bytecode::CompilerSettings;
+use koto_memory::Untrace;
 use koto_runtime::ModuleImportedCallback;
 use std::time::Duration;
 
@@ -259,7 +260,7 @@ impl KotoSettings {
     ) -> Self {
         Self {
             vm_settings: KotoVmSettings {
-                module_imported_callback: Some(Box::new(callback)),
+                module_imported_callback: Some(Box::new(Untrace(callback))),
                 ..self.vm_settings
             },
             ..self

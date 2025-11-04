@@ -43,8 +43,21 @@ impl DerefMut for MetaMap {
     }
 }
 
+#[cfg(any(feature = "gc", feature = "agc"))]
+unsafe impl<V: koto_memory::Visitor> koto_memory::TraceWith<V> for MetaMap {
+    fn accept(&self, visitor: &mut V) -> std::result::Result<(), ()> {
+        for (key, value) in &self.0 {
+            key.accept(visitor)?;
+            value.accept(visitor)?;
+        }
+
+        self.hasher().accept(visitor)
+    }
+}
+
 /// The key type used by [`MetaMaps`](crate::MetaMap)
-#[derive(Clone, Eq, Hash, PartialEq)]
+#[derive(Clone, Eq, Hash, PartialEq, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum MetaKey {
     /// A binary operation
     ///
@@ -138,7 +151,8 @@ impl From<WriteOp> for MetaKey {
 /// The binary operations that can be implemented in a [MetaMap](crate::MetaMap)
 ///
 /// See [MetaKey::BinaryOp]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum BinaryOp {
     /// `@+`
     Add,
@@ -224,7 +238,8 @@ impl fmt::Display for BinaryOp {
 /// The read operations that can be implemented in a [MetaMap](crate::MetaMap)
 ///
 /// See [MetaKey::ReadOp]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum ReadOp {
     /// `@index`
     Index,
@@ -248,7 +263,8 @@ impl fmt::Display for ReadOp {
 /// The write operations that can be implemented in a [MetaMap](crate::MetaMap)
 ///
 /// See [MetaKey::WriteOp]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum WriteOp {
     /// `@index_assign`
     ///
@@ -276,7 +292,8 @@ impl fmt::Display for WriteOp {
 /// The unary operations that can be implemented in a [MetaMap](crate::MetaMap)
 ///
 /// See [MetaKey::UnaryOp]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum UnaryOp {
     /// `@debug`
     Debug,

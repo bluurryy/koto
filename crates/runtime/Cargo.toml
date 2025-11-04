@@ -15,9 +15,39 @@ repository.workspace = true
 default = ["rc"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
-arc = ["koto_memory/arc", "koto_derive/arc"]
-rc = ["koto_memory/rc", "koto_derive/rc"]
+# To use any other than `rc`, default features must be disabled.
+arc = [
+    "koto_bytecode/arc",
+    "koto_derive/arc",
+    "koto_lexer/arc",
+    "koto_memory/arc",
+    "koto_parser/arc",
+    "koto_test_utils/arc",
+]
+agc = [
+    "koto_bytecode/agc",
+    "koto_derive/agc",
+    "koto_lexer/agc",
+    "koto_memory/agc",
+    "koto_parser/agc",
+    "koto_test_utils/agc",
+]
+rc = [
+    "koto_bytecode/rc",
+    "koto_derive/rc",
+    "koto_lexer/rc",
+    "koto_memory/rc",
+    "koto_parser/rc",
+    "koto_test_utils/rc",
+]
+gc = [
+    "koto_bytecode/gc",
+    "koto_derive/gc",
+    "koto_lexer/gc",
+    "koto_memory/gc",
+    "koto_parser/gc",
+    "koto_test_utils/gc",
+]
 
 [dependencies]
 koto_bytecode = { workspace = true }
@@ -43,5 +73,5 @@ chrono = { workspace = true, features = ["clock", "std", "wasmbind"] }
 instant = { workspace = true, features = ["wasm-bindgen"] }
 
 [dev-dependencies]
-koto_test_utils = { path = "../../crates/test_utils", default-features = false }
+koto_test_utils = { workspace = true }
 test-case = { workspace = true }

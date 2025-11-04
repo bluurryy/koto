@@ -1,0 +1,186 @@
+use proc_macro2::{TokenStream, TokenTree};
+use quote::{ToTokens, format_ident, quote, quote_spanned};
+use syn::{
+    Data, DeriveInput, Fields, GenericParam, Generics, Ident, Index, Path, parse_macro_input,
+    parse_quote, spanned::Spanned,
+};
+
+use crate::attributes::koto_derive_attributes;
+
+pub fn derive_koto_trace(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    if cfg!(not(any(feature = "gc", feature = "agc"))) {
+        return quote!().into();
+    }
+
+    let input = parse_macro_input!(input as DeriveInput);
+    let attributes = koto_derive_attributes(&input.attrs);
+    let memory = &attributes.memory;
+
+    // name of the type being implemented
+    let name = &input.ident;
+
+    // generic parameters of the type being implemented
+    let generics = add_trait_bounds(input.generics);
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
+    let impl_generics = {
+        let tokens = impl_generics.into_token_stream();
+        let param = quote! { __V: #memory::dumpster::Visitor };
+
+        let params = if tokens.is_empty() {
+            quote! { #param }
+        } else {
+            // remove the angle bracket delimiters
+            let mut tokens: Vec<TokenTree> = tokens.into_iter().skip(1).collect();
+            tokens.pop();
+
+            let tokens: TokenStream = tokens.into_iter().collect();
+
+            quote! { #param, #tokens }
+        };
+
+        quote! { < #params > }
+    };
+
+    let do_visitor = if attributes.trace_ignore {
+        quote!(::std::result::Result::Ok(()))
+    } else {
+        delegate_methods(memory, name, &input.data)
+    };
+
+    let generated = quote! {
+        unsafe impl #impl_generics #memory::dumpster::TraceWith<__V> for #name #ty_generics #where_clause {
+            #[inline]
+            fn accept(&self, visitor: &mut __V) -> ::std::result::Result<(), ()> {
+                #do_visitor
+            }
+        }
+    };
+
+    generated.into()
+}
+
+/// Collect the trait bounds for some generic expression.
+fn add_trait_bounds(mut generics: Generics) -> Generics {
+    for param in &mut generics.params {
+        if let GenericParam::Type(ref mut type_param) = *param {
+            type_param
+                .bounds
+                .push(parse_quote!(::koto_memory::TraceWith<__V>));
+        }
+    }
+    generics
+}
+
+#[allow(clippy::too_many_lines)]
+/// Generate method implementations for [`Trace`] for some data type.
+fn delegate_methods(memory: &Path, name: &Ident, data: &Data) -> TokenStream {
+    match data {
+        Data::Struct(data) => match data.fields {
+            Fields::Named(ref f) => {
+                let delegate_visit = f.named.iter().map(|f| {
+                    let name = &f.ident;
+                    quote_spanned! {f.span() =>
+                        #memory::dumpster::TraceWith::accept(
+                            &self.#name,
+                            visitor
+                        )?;
+                    }
+                });
+
+                quote! { #(#delegate_visit)* ::core::result::Result::Ok(()) }
+            }
+            Fields::Unnamed(ref f) => {
+                let delegate_visit = f.unnamed.iter().enumerate().map(|(i, f)| {
+                    let index = Index::from(i);
+                    quote_spanned! {f.span() =>
+                        #memory::dumpster::TraceWith::accept(
+                            &self.#index,
+                            visitor
+                        )?;
+                    }
+                });
+
+                quote! { #(#delegate_visit)* ::core::result::Result::Ok(()) }
+            }
+            Fields::Unit => quote! { ::core::result::Result::Ok(()) },
+        },
+        Data::Enum(e) => {
+            let mut delegate_visit = TokenStream::new();
+            for var in &e.variants {
+                let var_name = &var.ident;
+
+                match &var.fields {
+                    Fields::Named(n) => {
+                        let mut binding = TokenStream::new();
+                        let mut execution_visit = TokenStream::new();
+
+                        for (i, name) in n.named.iter().enumerate() {
+                            let field_name = format_ident!("field{i}");
+                            let field_ident = name.ident.as_ref().unwrap();
+                            if i == 0 {
+                                binding.extend(quote! {
+                                    #field_ident: #field_name
+                                });
+                            } else {
+                                binding.extend(quote! {
+                                    , #field_ident: #field_name
+                                });
+                            }
+
+                            execution_visit.extend(quote! {
+                                #memory::dumpster::TraceWith::accept(
+                                    #field_name,
+                                    visitor
+                                )?;
+                            });
+                        }
+
+                        delegate_visit.extend(
+                        quote! {#name::#var_name{#binding} => {#execution_visit ::core::result::Result::Ok(())},},
+                    );
+                    }
+                    Fields::Unnamed(u) => {
+                        let mut binding = TokenStream::new();
+                        let mut execution_visit = TokenStream::new();
+
+                        for (i, _) in u.unnamed.iter().enumerate() {
+                            let field_name = format_ident!("field{i}");
+                            if i == 0 {
+                                binding.extend(quote! {
+                                    #field_name
+                                });
+                            } else {
+                                binding.extend(quote! {
+                                    , #field_name
+                                });
+                            }
+
+                            execution_visit.extend(quote! {
+                                #memory::dumpster::TraceWith::accept(
+                                    #field_name,
+                                    visitor
+                                )?;
+                            });
+                        }
+
+                        delegate_visit.extend(
+                        quote! {#name::#var_name(#binding) => {#execution_visit ::core::result::Result::Ok(())},},
+                    );
+                    }
+                    Fields::Unit => {
+                        delegate_visit
+                            .extend(quote! {#name::#var_name => ::core::result::Result::Ok(()),});
+                    }
+                }
+            }
+
+            quote! {match self {#delegate_visit}}
+        }
+        Data::Union(u) => {
+            quote_spanned! {
+                u.union_token.span => compile_error!("`Trace` must be manually implemented for unions");
+            }
+        }
+    }
+}

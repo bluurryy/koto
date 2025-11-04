@@ -15,9 +15,11 @@ repository.workspace = true
 default = ["rc"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
-arc = ["koto_memory/arc"]
-rc = ["koto_memory/rc"]
+# To use any other than `rc`, default features must be disabled.
+arc = ["koto_memory/arc", "koto_parser/arc"]
+agc = ["koto_memory/agc", "koto_parser/agc"]
+rc = ["koto_memory/rc", "koto_parser/rc"]
+gc = ["koto_memory/gc", "koto_parser/gc"]
 
 [dependencies]
 koto_memory = { workspace = true }

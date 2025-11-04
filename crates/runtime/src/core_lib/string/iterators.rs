@@ -4,7 +4,8 @@ use crate::{Error, ErrorKind, InstructionFrame, KIteratorOutput as Output, Resul
 use unicode_segmentation::UnicodeSegmentation;
 
 /// An iterator that outputs the individual bytes contained in a string
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Bytes {
     input: KString,
     index: usize,
@@ -43,7 +44,8 @@ impl Iterator for Bytes {
 }
 
 /// An iterator that outputs the individual bytes contained in a string
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct CharIndices {
     input: KString,
     index: usize,
@@ -89,7 +91,8 @@ impl Iterator for CharIndices {
 /// - Lines end with either `\r\n` or `\n`.
 /// - Line end characters aren't included in the resulting output.
 /// - Empty lines are yielded as empty strings.
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Lines {
     input: KString,
     start: usize,
@@ -144,7 +147,8 @@ impl Iterator for Lines {
 }
 
 /// An iterator that splits up a string into parts, separated by a provided pattern
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Split {
     input: KString,
     pattern: KString,
@@ -194,6 +198,8 @@ impl Iterator for Split {
 }
 
 /// An iterator that splits up a string into parts, separated when a char passes a predicate
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct SplitWith {
     input: KString,
     predicate: KValue,
