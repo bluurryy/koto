@@ -3,7 +3,7 @@
 mod runtime {
     use koto_bytecode::{CompilerSettings, ModuleLoader};
     use koto_lexer::{Position, Span};
-    use koto_runtime::{InstructionFrame, KotoVm};
+    use koto_runtime::{ErrorKind, InstructionFrame, KotoVm};
     use koto_test_utils::script_instructions;
 
     fn check_script_fails(script: &str) {
@@ -679,6 +679,25 @@ for i in 0..
   print i
 ";
                 check_script_fails(script);
+            }
+        }
+
+        mod generators {
+            use super::*;
+
+            #[test]
+            fn unexpected_top_level_yield() {
+                let script = "
+yield 1
+yield 2
+yield 3
+'done'
+";
+
+                check_script_fails_with_error(
+                    script,
+                    ErrorKind::UnexpectedTopLevelYield.to_string(),
+                );
             }
         }
 

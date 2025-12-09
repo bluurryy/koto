@@ -280,6 +280,16 @@ impl KotoVm {
 
     /// Runs the provided [Chunk], returning the resulting [KValue]
     pub fn run(&mut self, chunk: Ptr<Chunk>) -> Result<KValue> {
+        self.start_running(chunk)?;
+
+        match self.continue_running()? {
+            ReturnOrYield::Return(value) => Ok(value),
+            ReturnOrYield::Yield(_) => runtime_error!(ErrorKind::UnexpectedTopLevelYield),
+        }
+    }
+
+    /// Starts running the provided [Chunk].
+    pub fn start_running(&mut self, chunk: Ptr<Chunk>) -> Result<()> {
         // Set up an execution frame to run the chunk in
         let frame_base = self.next_register();
         self.registers.push(KValue::Null); // Instance register
@@ -298,31 +308,41 @@ impl KotoVm {
         // Ensure that execution stops here if an error is thrown
         self.frame_mut().execution_barrier = true;
 
-        // Run the chunk
-        let result = self.execute_instructions();
-        if result.is_err() {
-            self.pop_frame(KValue::Null)?;
-        }
-
-        // Reset the register stack back to where it was at the start of the run
-        self.truncate_registers(frame_base);
-        result
+        Ok(())
     }
 
     /// Continues execution in a suspended VM
-    ///
-    /// This is currently used to support generators, which yield incremental results and then
-    /// leave the VM in a suspended state.
     pub fn continue_running(&mut self) -> Result<ReturnOrYield> {
         if self.call_stack.is_empty() {
             return Ok(ReturnOrYield::Return(KValue::Null));
         }
 
-        let result = self.execute_instructions()?;
+        let result = self.execute_instructions();
+
+        if result.is_err() {
+            self.pop_frame(KValue::Null)?;
+        }
+
+        let value = result?;
 
         match self.execution_state {
-            ExecutionState::Inactive => Ok(ReturnOrYield::Return(result)),
-            ExecutionState::Suspended => Ok(ReturnOrYield::Yield(result)),
+            ExecutionState::Inactive => Ok(ReturnOrYield::Return(value)),
+            ExecutionState::Suspended => Ok(ReturnOrYield::Yield(value)),
+            ExecutionState::Active => unreachable!(),
+        }
+    }
+
+    /// Continues execution of a generator
+    pub(crate) fn continue_running_generator(&mut self) -> Result<ReturnOrYield> {
+        if self.call_stack.is_empty() {
+            return Ok(ReturnOrYield::Return(KValue::Null));
+        }
+
+        let value = self.execute_instructions()?;
+
+        match self.execution_state {
+            ExecutionState::Inactive => Ok(ReturnOrYield::Return(value)),
+            ExecutionState::Suspended => Ok(ReturnOrYield::Yield(value)),
             ExecutionState::Active => unreachable!(),
         }
     }
@@ -3615,6 +3635,8 @@ impl KotoVm {
             // The call stack is empty, so clean up by resetting the register base.
             self.register_base = 0;
             self.min_frame_registers = 0;
+            // Keep result register, used by MetaIterator
+            self.registers.truncate(1);
             Ok(Some(return_value))
         } else {
             let return_frame = self.frame();
@@ -4129,6 +4151,7 @@ impl ExecutionTimeout {
 
 /// An output value from [KotoVm::continue_running], either from a `return` or `yield` expression
 #[allow(missing_docs)]
+#[derive(Debug)]
 pub enum ReturnOrYield {
     Return(KValue),
     Yield(KValue),

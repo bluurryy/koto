@@ -1,6 +1,18 @@
 use crate::script_instructions;
-use koto_bytecode::{CompilerSettings, ModuleLoader};
-use koto_runtime::{Result, prelude::*};
+use koto_bytecode::{Chunk, CompilerSettings, ModuleLoader};
+use koto_runtime::{Ptr, Result, prelude::*};
+
+/// Compiles the script with default settings
+pub fn compile_test_script(script: &str, script_path: Option<KString>) -> Result<Ptr<Chunk>> {
+    let mut loader = ModuleLoader::default();
+    match loader.compile_script(script, script_path, CompilerSettings::default()) {
+        Ok(chunk) => Ok(chunk),
+        Err(error) => {
+            println!("{script}\n");
+            Err(format!("Error while compiling script: {error}").into())
+        }
+    }
+}
 
 /// Runs a script using the provided Vm, optionally checking its output
 pub fn run_test_script(
@@ -9,14 +21,7 @@ pub fn run_test_script(
     script_path: Option<KString>,
     expected_output: Option<KValue>,
 ) -> Result<()> {
-    let mut loader = ModuleLoader::default();
-    let chunk = match loader.compile_script(script, script_path, CompilerSettings::default()) {
-        Ok(chunk) => chunk,
-        Err(error) => {
-            println!("{script}\n");
-            return Err(format!("Error while compiling script: {error}").into());
-        }
-    };
+    let chunk = compile_test_script(script, script_path)?;
 
     match vm.run(chunk) {
         Ok(result) => {

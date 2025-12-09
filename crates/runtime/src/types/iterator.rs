@@ -615,7 +615,7 @@ impl Iterator for GeneratorIterator {
     type Item = Output;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.vm.continue_running() {
+        match self.vm.continue_running_generator() {
             Ok(ReturnOrYield::Return(_)) => None,
             Ok(ReturnOrYield::Yield(output)) => match output {
                 KValue::TemporaryTuple(_) => {

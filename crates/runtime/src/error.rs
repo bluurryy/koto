@@ -50,6 +50,8 @@ pub enum ErrorKind {
         expected: &'static str,
         unexpected: KString,
     },
+    #[error("top level yield is not supported here")]
+    UnexpectedTopLevelYield,
     #[error("{fn_name} is unimplemented for {object_type}")]
     Unimplemented {
         fn_name: &'static str,

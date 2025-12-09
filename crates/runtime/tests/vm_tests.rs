@@ -1,4 +1,5 @@
 mod vm {
+    use koto_runtime::ReturnOrYield;
     use koto_runtime::prelude::*;
     use koto_test_utils::*;
 
@@ -3475,6 +3476,40 @@ x.next() # -> null
 x.next()
 ";
             check_script_output(script, KValue::Null);
+        }
+
+        #[test]
+        fn top_level_yield() {
+            let script = "
+yield 1
+yield 2
+yield 3
+'done'
+";
+
+            let chunk = compile_test_script(script, None).unwrap();
+            let mut vm = KotoVm::default();
+
+            if let Err(err) = vm.start_running(chunk) {
+                panic!("start running erred: {err}");
+            }
+
+            for i in 1..=3 {
+                assert!(matches!(
+                    vm.continue_running(),
+                    Ok(ReturnOrYield::Yield(KValue::Number(KNumber::I64(j)))) if i == j
+                ));
+            }
+
+            assert!(matches!(
+                vm.continue_running(),
+                Ok(ReturnOrYield::Return(KValue::Str(s))) if s == "done"
+            ));
+
+            assert!(matches!(
+                vm.continue_running(),
+                Ok(ReturnOrYield::Return(KValue::Null))
+            ));
         }
     }
 
