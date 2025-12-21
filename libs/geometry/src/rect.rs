@@ -1,11 +1,11 @@
 use crate::{Vec2, geometry_comparison_op};
-use koto_runtime::{Result, derive::*, prelude::*};
+use koto_runtime::{Result, derive::*, memory::Untrace, prelude::*};
 use std::{
     fmt,
     ops::{Add, Div, Sub},
 };
 
-#[derive(Copy, Clone, PartialEq, KotoCopy, KotoType)]
+#[derive(Copy, Clone, PartialEq, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = koto_runtime, use_copy)]
 pub struct Rect {
     x: Bounds<f64>,
@@ -124,7 +124,7 @@ impl KotoObject for Rect {
             KIteratorOutput::Value(result.into())
         });
 
-        Ok(KIterator::with_std_iter(iter))
+        Ok(KIterator::with_std_iter(Untrace(iter)))
     }
 }
 
@@ -153,7 +153,8 @@ impl fmt::Display for Rect {
     }
 }
 
-#[derive(Clone, Copy, Default, PartialEq)]
+#[derive(Clone, Copy, Default, PartialEq, KotoTrace)]
+#[koto(runtime = koto_runtime)]
 struct Bounds<T>
 where
     T: Clone + Copy + Default + PartialEq,

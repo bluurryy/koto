@@ -1,10 +1,11 @@
 use crate::InstructionReader;
-use koto_memory::Ptr;
+use koto_memory::{KotoTrace, Ptr};
 use koto_parser::{ConstantPool, KString, Span};
 use std::fmt::{self, Write};
 
 /// Debug information for a Koto program
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct DebugInfo {
     source_map: Vec<(u32, Span)>,
     /// The source of the program that the debug info was derived from
@@ -46,7 +47,8 @@ impl DebugInfo {
 }
 
 /// A compiled chunk of bytecode, along with its associated constants and metadata
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct Chunk {
     /// The bytes representing the chunk's bytecode
     pub bytes: Vec<u8>,

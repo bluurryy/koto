@@ -10,7 +10,6 @@ mod vm;
 
 pub mod core_lib;
 pub mod prelude;
-mod send_sync;
 
 pub use crate::{
     display_context::DisplayContext,
@@ -22,7 +21,6 @@ pub use crate::{
         BufferedFile, KotoFile, KotoRead, KotoWrite, SystemStderr, SystemStdin, SystemStdout,
         UnavailableStderr, UnavailableStdin, UnavailableStdout,
     },
-    send_sync::{KotoSend, KotoSync},
     types::{
         BinaryOp, CallContext, IsIterable, KFunction, KIterator, KIteratorOutput, KList, KMap,
         KNativeFunction, KNumber, KObject, KRange, KString, KTuple, KValue, KotoAccess, KotoCopy,
@@ -32,7 +30,10 @@ pub use crate::{
     vm::{CallArgs, KotoVm, KotoVmSettings, ModuleImportedCallback, ReturnOrYield},
 };
 pub use koto_derive as derive;
-pub use koto_memory::{Borrow, BorrowMut, KCell, Ptr, PtrMut, lazy, make_ptr, make_ptr_mut};
+pub use koto_memory::{
+    self as memory, Borrow, BorrowMut, KCell, KotoSend, KotoSync, KotoTrace, Ptr, PtrMut, lazy,
+    make_ptr, make_ptr_mut,
+};
 
 #[doc(hidden)]
 pub mod __private;

@@ -3,7 +3,8 @@
 use crate::{InstructionFrame, KIteratorOutput as Output, Result, prelude::*};
 
 /// An iterator that yields a value once
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Once {
     value: Option<KValue>,
 }
@@ -30,6 +31,8 @@ impl Iterator for Once {
 }
 
 /// An iterator that repeatedly yields the same value
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Repeat {
     value: KValue,
 }
@@ -59,6 +62,8 @@ impl Iterator for Repeat {
 }
 
 /// An iterator that yields the same value N times
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct RepeatN {
     remaining: usize,
     value: KValue,
@@ -102,6 +107,8 @@ impl Iterator for RepeatN {
 }
 
 /// An iterator that repeatedly yields the result of calling a function
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Generate {
     function: KValue,
     vm: KotoVm,
@@ -147,6 +154,8 @@ impl Iterator for Generate {
 }
 
 /// An iterator that yields the result of calling a function N times
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct GenerateN {
     remaining: usize,
     function: KValue,

@@ -61,7 +61,7 @@ fn run_repl_mode_test(inputs_and_expected_outputs: &[(&str, &str)]) {
 }
 
 // Captures output from Koto in a String
-#[derive(Debug)]
+#[derive(Debug, KotoTrace)]
 struct OutputCapture {
     output: PtrMut<String>,
 }

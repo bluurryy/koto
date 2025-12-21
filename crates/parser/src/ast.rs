@@ -1,10 +1,12 @@
 use koto_lexer::Span;
+use koto_memory::KotoTrace;
 use std::{fmt, num::TryFromIntError};
 
 use crate::{ConstantPool, Node, error::*};
 
 /// The index type used by nodes in the [Ast]
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct AstIndex(u32);
 
 impl From<AstIndex> for u32 {
@@ -46,7 +48,8 @@ impl fmt::Display for AstIndex {
 }
 
 /// A [Node] in the [Ast], along with its corresponding [Span]
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct AstNode {
     /// The node itself
     pub node: Node,
@@ -59,7 +62,8 @@ pub struct AstNode {
 /// A Koto program represented as an Abstract Syntax Tree
 ///
 /// This is produced by the parser, and consumed by the compiler.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct Ast {
     nodes: Vec<AstNode>,
     spans: Vec<Span>,

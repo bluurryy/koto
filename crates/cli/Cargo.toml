@@ -15,9 +15,55 @@ repository.workspace = true
 default = ["rc"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
-arc = ["koto/arc", "koto/serde"]
-rc = ["koto/rc", "koto/serde"]
+# To use any other than `rc`, default features must be disabled.
+agc = [
+  "koto/serde",
+  "koto/agc",
+  "koto_color/agc",
+  "koto_geometry/agc",
+  "koto_json/agc",
+  "koto_random/agc",
+  "koto_regex/agc",
+  "koto_tempfile/agc",
+  "koto_toml/agc",
+  "koto_yaml/agc",
+]
+arc = [
+  "koto/serde",
+  "koto/arc",
+  "koto_color/arc",
+  "koto_geometry/arc",
+  "koto_json/arc",
+  "koto_random/arc",
+  "koto_regex/arc",
+  "koto_tempfile/arc",
+  "koto_toml/arc",
+  "koto_yaml/arc",
+]
+gc = [
+  "koto/serde",
+  "koto/gc",
+  "koto_color/gc",
+  "koto_geometry/gc",
+  "koto_json/gc",
+  "koto_random/gc",
+  "koto_regex/gc",
+  "koto_tempfile/gc",
+  "koto_toml/gc",
+  "koto_yaml/gc",
+]
+rc = [
+  "koto/serde",
+  "koto/rc",
+  "koto_color/rc",
+  "koto_geometry/rc",
+  "koto_json/rc",
+  "koto_random/rc",
+  "koto_regex/rc",
+  "koto_tempfile/rc",
+  "koto_toml/rc",
+  "koto_yaml/rc",
+]
 
 [[bin]]
 name = "koto"

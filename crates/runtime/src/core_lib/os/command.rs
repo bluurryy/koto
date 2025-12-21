@@ -36,7 +36,7 @@ macro_rules! stdio_setter {
 }
 
 /// A wrapper for [std::process::Command], used by `os.command`
-#[derive(Clone, Debug, KotoCopy, KotoType)]
+#[derive(Clone, Debug, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = crate)]
 pub struct Command(PtrMut<process::Command>);
 
@@ -139,7 +139,7 @@ impl KotoObject for Command {
 }
 
 /// A wrapper for [std::process::Output], used by `os.command`
-#[derive(Clone, Debug, KotoCopy, KotoType)]
+#[derive(Clone, Debug, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = crate)]
 struct CommandOutput(process::Output);
 
@@ -187,7 +187,7 @@ impl CommandOutput {
 impl KotoObject for CommandOutput {}
 
 /// A wrapper for [std::process::Child], used by `os.command.spawn`
-#[derive(Clone, KotoCopy, KotoType)]
+#[derive(Clone, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = crate)]
 struct Child {
     handle: PtrMut<Option<process::Child>>,
@@ -335,7 +335,8 @@ impl Child {
 
 impl KotoObject for Child {}
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct ChildStdin(PtrMut<Option<BufWriter<process::ChildStdin>>>);
 
 impl KotoFile for ChildStdin {
@@ -369,7 +370,8 @@ impl KotoWrite for ChildStdin {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct ChildStdout(PtrMut<Option<BufReader<process::ChildStdout>>>);
 
 impl KotoFile for ChildStdout {
@@ -403,7 +405,8 @@ impl KotoRead for ChildStdout {
 }
 impl KotoWrite for ChildStdout {}
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct ChildStderr(PtrMut<Option<BufReader<process::ChildStderr>>>);
 
 impl KotoFile for ChildStderr {

@@ -1,4 +1,5 @@
 use crate::{Position, Span};
+use koto_memory::KotoTrace;
 use std::{collections::VecDeque, iter::Peekable, ops::Range, str::Chars};
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthChar;
@@ -135,7 +136,8 @@ pub struct RawStringDelimiter {
 }
 
 /// The type of quotation mark used in string delimiters
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum StringQuote {
     Double,

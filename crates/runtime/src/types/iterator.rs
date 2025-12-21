@@ -1,4 +1,4 @@
-use koto_memory::Ptr;
+use koto_memory::{KotoTrace, Ptr};
 
 use crate::{Error, PtrMut, Result, prelude::*, vm::ReturnOrYield};
 use std::{fmt, ops::DerefMut, result::Result as StdResult};
@@ -6,7 +6,7 @@ use std::{fmt, ops::DerefMut, result::Result as StdResult};
 /// The trait used to implement iterators in Koto
 ///
 /// See [KIterator].
-pub trait KotoIterator: Iterator<Item = KIteratorOutput> + KotoSend + KotoSync {
+pub trait KotoIterator: Iterator<Item = KIteratorOutput> + KotoSend + KotoSync + KotoTrace {
     /// Returns a copy of the iterator that (when possible), will produce the same output
     fn make_copy(&self) -> Result<KIterator>;
 
@@ -24,7 +24,8 @@ pub trait KotoIterator: Iterator<Item = KIteratorOutput> + KotoSend + KotoSync {
 }
 
 /// The output type for iterators in Koto
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum KIteratorOutput {
     /// A single value
     Value(KValue),
@@ -63,7 +64,8 @@ impl TryFrom<KIteratorOutput> for KValue {
 }
 
 /// The iterator value type used in Koto
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KIterator(PtrMut<dyn KotoIterator>);
 
 impl KIterator {
@@ -77,7 +79,7 @@ impl KIterator {
     /// This should only be used for iterators without side-effects.
     pub fn with_std_iter<T>(iter: T) -> Self
     where
-        T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+        T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
     {
         Self::new(StdDoubleEndedIterator::<T> { iter })
     }
@@ -87,7 +89,7 @@ impl KIterator {
     /// This should only be used for iterators without side-effects.
     pub fn with_std_forward_iter<T>(iter: T) -> Self
     where
-        T: Iterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+        T: Iterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
     {
         Self::new(StdForwardIterator::<T> { iter })
     }
@@ -195,7 +197,8 @@ impl fmt::Debug for KIterator {
 // Convenience type alias for the rest of this module
 type Output = KIteratorOutput;
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct RangeIterator {
     range: KRange,
 }
@@ -246,7 +249,8 @@ impl Iterator for RangeIterator {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct ListIterator {
     list: KList,
     index: usize,
@@ -309,7 +313,8 @@ impl Iterator for ListIterator {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct TupleIterator {
     tuple: KTuple,
     index: usize,
@@ -371,7 +376,8 @@ impl Iterator for TupleIterator {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct MapIterator {
     data: KMap,
     index: usize,
@@ -434,7 +440,8 @@ impl Iterator for MapIterator {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct MetaIterator {
     vm: KotoVm,
     iterator: KValue,
@@ -500,7 +507,8 @@ impl Iterator for MetaIterator {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct ObjectIterator {
     vm: KotoVm,
     object: KObject,
@@ -556,7 +564,8 @@ impl Iterator for ObjectIterator {
 }
 
 /// An iterator that yields the characters contained in the string
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct StringIterator(KString);
 
 impl StringIterator {
@@ -593,7 +602,8 @@ impl Iterator for StringIterator {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct GeneratorIterator {
     vm: KotoVm,
 }
@@ -628,17 +638,18 @@ impl Iterator for GeneratorIterator {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct StdForwardIterator<T>
 where
-    T: Iterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+    T: Iterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
 {
     iter: T,
 }
 
 impl<T> KotoIterator for StdForwardIterator<T>
 where
-    T: Iterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+    T: Iterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
 {
     fn make_copy(&self) -> Result<KIterator> {
         Ok(KIterator::new(self.clone()))
@@ -647,7 +658,7 @@ where
 
 impl<T> Iterator for StdForwardIterator<T>
 where
-    T: Iterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+    T: Iterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
 {
     type Item = Output;
 
@@ -656,17 +667,18 @@ where
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct StdDoubleEndedIterator<T>
 where
-    T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+    T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
 {
     iter: T,
 }
 
 impl<T> KotoIterator for StdDoubleEndedIterator<T>
 where
-    T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+    T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
 {
     fn make_copy(&self) -> Result<KIterator> {
         Ok(KIterator::new(self.clone()))
@@ -683,7 +695,7 @@ where
 
 impl<T> Iterator for StdDoubleEndedIterator<T>
 where
-    T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+    T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
 {
     type Item = Output;
 
@@ -694,14 +706,15 @@ where
 
 impl<T> DoubleEndedIterator for StdDoubleEndedIterator<T>
 where
-    T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + 'static,
+    T: DoubleEndedIterator<Item = Output> + Clone + KotoSend + KotoSync + KotoTrace + 'static,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back()
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct ByteIterator {
     bytes: Ptr<[u8]>,
     index: usize,

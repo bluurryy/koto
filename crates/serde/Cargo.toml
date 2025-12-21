@@ -15,8 +15,10 @@ repository.workspace = true
 default = ["rc"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
+# To use any other than `rc`, default features must be disabled.
+agc = ["koto_runtime/agc"]
 arc = ["koto_runtime/arc"]
+gc = ["koto_runtime/gc"]
 rc = ["koto_runtime/rc"]
 
 [dependencies]

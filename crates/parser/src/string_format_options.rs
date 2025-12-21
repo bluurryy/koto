@@ -1,12 +1,14 @@
 use std::{iter::Peekable, str::Chars};
 
+use koto_memory::KotoTrace;
 use thiserror::Error;
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::{ConstantIndex, constant_pool::ConstantPoolBuilder};
 
 /// The formatting options that are available for interpolated strings
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct StringFormatOptions {
     /// The alignment that padded strings should use
     pub alignment: StringAlignment,
@@ -150,7 +152,8 @@ fn consume_u32(first: char, chars: &mut Peekable<Chars>) -> Result<u32, StringFo
 }
 
 /// Alignment options for formatted strings
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 #[repr(u8)]
 pub enum StringAlignment {
@@ -163,7 +166,8 @@ pub enum StringAlignment {
 }
 
 /// Alternative representations formatted strings
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 #[repr(u8)]
 pub enum StringFormatRepresentation {
@@ -201,7 +205,8 @@ impl TryFrom<u8> for StringFormatRepresentation {
 }
 
 /// An error that represents a problem with the Parser's internal logic, rather than a user error
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum StringFormatError {
     #[error("expected a number '{0}'")]

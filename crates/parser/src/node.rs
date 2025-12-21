@@ -1,5 +1,5 @@
 use crate::{StringFormatOptions, StringQuote, ast::AstIndex, constant_pool::ConstantIndex};
-use smallvec::SmallVec;
+use koto_memory::{KotoTrace, SmallVec};
 use std::fmt;
 
 /// The Vec type used in the AST
@@ -7,15 +7,16 @@ use std::fmt;
 //  Q. Why 4 elements in the small Vec?
 //  A. It's the maximum number of elements that can be used in [Node] without increasing its overall
 //     size.
-pub type AstVec<T> = SmallVec<[T; 4]>;
+pub type AstVec<T> = SmallVec<T, 4>;
 
 /// A convenience macro for initializing an [`AstVec`]
-pub use smallvec::smallvec as astvec;
+pub use koto_memory::smallvec as astvec;
 
 /// A parsed node that can be included in the [AST](crate::Ast).
 ///
 /// Nodes refer to each other via [`AstIndex`], see [`AstNode`](crate::AstNode).
-#[derive(Clone, Debug, Default, PartialEq, Eq, derive_name::VariantName)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, derive_name::VariantName, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub enum Node {
     /// The `null` keyword
     #[default]
@@ -361,7 +362,8 @@ pub enum Node {
 }
 
 /// A function definition
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct Function {
     /// The function's arguments
     ///
@@ -386,7 +388,8 @@ pub struct Function {
 }
 
 /// A string definition
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct AstString {
     /// Indicates if single or double quotation marks were used
     pub quote: StringQuote,
@@ -395,7 +398,8 @@ pub struct AstString {
 }
 
 /// The contents of an [AstString]
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub enum StringContents {
     /// A string literal
     Literal(ConstantIndex),
@@ -416,7 +420,8 @@ pub enum StringContents {
 }
 
 /// A node in a string definition
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub enum StringNode {
     /// A string literal
     Literal(ConstantIndex),
@@ -430,7 +435,8 @@ pub enum StringNode {
 }
 
 /// A for loop definition
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct AstFor {
     /// The ids that capture each iteration's output values
     pub args: AstVec<AstIndex>,
@@ -441,7 +447,8 @@ pub struct AstFor {
 }
 
 /// An if expression definition
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct AstIf {
     /// The if expression's condition
     pub condition: AstIndex,
@@ -456,7 +463,8 @@ pub struct AstIf {
 }
 
 /// An operation used in UnaryOp expressions
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum AstUnaryOp {
     Negate,
@@ -480,7 +488,8 @@ impl fmt::Display for AstUnaryOp {
 }
 
 /// An operation used in BinaryOp expressions
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum AstBinaryOp {
     Add,
@@ -542,7 +551,8 @@ impl fmt::Display for AstBinaryOp {
 }
 
 /// A try expression definition
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct AstTry {
     /// The block that's wrapped by the try
     pub try_block: AstIndex,
@@ -553,7 +563,8 @@ pub struct AstTry {
 }
 
 /// A catch block definition
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct AstCatch {
     /// The identifier that will receive a caught error
     pub arg: AstIndex,
@@ -575,7 +586,8 @@ pub struct AstCatch {
 ///  |  |   ^ Str (baz)
 ///  |  ^ Id (bar)
 ///  ^ Root (foo)
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub enum ChainNode {
     /// The root of the chain
     Root(AstIndex),
@@ -604,7 +616,8 @@ pub enum ChainNode {
 }
 
 /// A meta key
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[repr(u8)]
 pub enum MetaKeyId {
     /// @+
@@ -781,7 +794,8 @@ impl fmt::Display for MetaKeyId {
 }
 
 /// A node in an import item, see [Node::Import]
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct ImportItem {
     /// The imported item
     pub item: AstIndex,

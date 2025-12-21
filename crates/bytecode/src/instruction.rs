@@ -1,5 +1,6 @@
 use std::fmt;
 
+use koto_memory::KotoTrace;
 use koto_parser::{ConstantIndex, MetaKeyId, StringAlignment, StringFormatOptions};
 
 /// Decoded instructions produced by an [InstructionReader](crate::InstructionReader) for execution
@@ -386,7 +387,8 @@ pub enum Instruction {
 }
 
 /// Flags used to define the properties of a Function
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[repr(transparent)]
 pub struct FunctionFlags(u8);
 

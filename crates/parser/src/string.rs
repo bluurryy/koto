@@ -1,5 +1,5 @@
 use crate::StringSlice;
-use koto_memory::Ptr;
+use koto_memory::{KotoTrace, Ptr};
 use std::{
     cmp::Ordering,
     fmt,
@@ -16,10 +16,12 @@ use unicode_segmentation::UnicodeSegmentation;
 ///
 /// [`AsRef`](std::convert::AsRef) is implemented for `&str`, which automatically resolves to the
 /// correct slice of the string data.
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct KString(Inner);
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(memory = koto_memory)]
 enum Inner {
     // A shared string
     Full(Ptr<String>),

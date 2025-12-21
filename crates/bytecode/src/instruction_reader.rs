@@ -1,10 +1,11 @@
 use crate::{Chunk, FunctionFlags, Instruction, Op, StringFormatFlags};
-use koto_memory::Ptr;
+use koto_memory::{KotoTrace, Ptr};
 use koto_parser::{StringFormatOptions, StringFormatRepresentation};
 use std::mem::MaybeUninit;
 
 /// An iterator that converts bytecode into a series of [Instruction]s
-#[derive(Clone, Default)]
+#[derive(Clone, Default, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct InstructionReader {
     /// The chunk that the reader is reading from
     pub chunk: Ptr<Chunk>,

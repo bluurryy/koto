@@ -1,7 +1,7 @@
 use crate::{Result, prelude::*};
 
 /// A trait used for file-like-things in Koto
-pub trait KotoFile: KotoRead + KotoWrite + KotoSend + KotoSync {
+pub trait KotoFile: KotoRead + KotoWrite + KotoSend + KotoSync + KotoTrace {
     /// An identifier for the file, accessed when displaying the file in strings
     fn id(&self) -> KString;
 

@@ -1,4 +1,4 @@
-use koto_memory::Ptr;
+use koto_memory::{KotoTrace, Ptr};
 use std::ops::{Deref, Range};
 
 /// A trait for index types used by [StringSlice]
@@ -22,7 +22,8 @@ impl StringSliceIndex for u16 {
 /// String data with defined bounds
 ///
 /// The bounds are guaranteed to be indices to a valid UTF-8 sub-string of the original data.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct StringSlice<T> {
     data: Ptr<String>,
     bounds: Range<T>,

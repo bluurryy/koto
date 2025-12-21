@@ -1,13 +1,20 @@
-use crate::attributes::koto_derive_attributes;
-use proc_macro::TokenStream;
+use crate::attributes::koto_container_attributes;
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{DeriveInput, parse_macro_input};
+use syn::{DeriveInput, Result};
 
-pub fn derive_koto_type(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
+pub(crate) fn derive_koto_type(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match derive_koto_type_inner(input.into()) {
+        Ok(tokens) => tokens.into(),
+        Err(error) => error.into_compile_error().into(),
+    }
+}
+
+fn derive_koto_type_inner(input: TokenStream) -> Result<TokenStream> {
+    let input = syn::parse2::<DeriveInput>(input)?;
     let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
-    let attributes = koto_derive_attributes(&input.attrs);
+    let attributes = koto_container_attributes(&input.attrs)?;
 
     let name = input.ident;
 
@@ -30,5 +37,5 @@ pub fn derive_koto_type(input: TokenStream) -> TokenStream {
         }
     };
 
-    result.into()
+    Ok(result)
 }

@@ -8,7 +8,7 @@ mod snippets {
         use super::*;
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -23,7 +23,7 @@ mod snippets {
         };
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -42,7 +42,7 @@ mod snippets {
         use super::*;
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -57,7 +57,7 @@ mod snippets {
         };
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -76,7 +76,7 @@ mod snippets {
         use super::*;
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -91,7 +91,7 @@ mod snippets {
         };
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -110,7 +110,7 @@ mod snippets {
         use super::*;
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -125,7 +125,7 @@ mod snippets {
         };
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -144,7 +144,7 @@ mod snippets {
         use super::*;
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -159,7 +159,7 @@ mod snippets {
         };
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -178,7 +178,7 @@ mod snippets {
         use super::*;
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -193,7 +193,7 @@ mod snippets {
         };
 
         const _: () = {
-            #[derive(Clone, KotoType, KotoCopy)]
+            #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
             struct Struct;
 
             impl KotoObject for Struct {}
@@ -212,7 +212,7 @@ mod snippets {
 mod example {
     use super::*;
 
-    #[derive(Clone, KotoType, KotoCopy)]
+    #[derive(Clone, KotoType, KotoCopy, KotoTrace)]
     struct Foo {
         x: f64,
     }

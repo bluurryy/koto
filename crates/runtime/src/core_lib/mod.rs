@@ -13,9 +13,12 @@ pub mod test;
 pub mod tuple;
 mod value_sort;
 
+use koto_memory::KotoTrace;
+
 use crate::KMap;
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 #[allow(missing_docs)]
 pub struct CoreLib {
     pub io: KMap,

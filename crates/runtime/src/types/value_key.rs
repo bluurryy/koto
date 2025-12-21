@@ -9,7 +9,8 @@ use std::{
 /// The key type used by [ValueMap](crate::ValueMap)
 ///
 /// Only hashable values can be used as keys, see [KValue::is_hashable]
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct ValueKey(KValue);
 
 impl ValueKey {

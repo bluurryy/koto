@@ -1,6 +1,6 @@
 use crate::{Chunk, Compiler, CompilerError, CompilerSettings};
 use dunce::canonicalize;
-use koto_memory::Ptr;
+use koto_memory::{KotoTrace, Ptr};
 use koto_parser::{KString, Span, format_source_excerpt};
 use rustc_hash::FxHasher;
 use std::{
@@ -14,7 +14,8 @@ use std::{
 use thiserror::Error;
 
 /// Errors that can be returned from [ModuleLoader] operations
-#[derive(Error, Debug)]
+#[derive(Error, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 #[allow(missing_docs)]
 pub enum ModuleLoaderErrorKind {
     #[error("{0}")]
@@ -32,7 +33,8 @@ pub enum ModuleLoaderErrorKind {
 }
 
 /// The error type used by the [ModuleLoader]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct ModuleLoaderError {
     /// The error
     pub error: Ptr<ModuleLoaderErrorKind>,
@@ -41,7 +43,8 @@ pub struct ModuleLoaderError {
 }
 
 /// The source of a [ModuleLoaderError]
-#[derive(Debug)]
+#[derive(Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct LoaderErrorSource {
     /// The script's contents
     pub contents: String,
@@ -103,7 +106,8 @@ impl From<ModuleLoaderErrorKind> for ModuleLoaderError {
 }
 
 /// Helper for loading, compiling, and caching Koto modules
-#[derive(Clone, Default)]
+#[derive(Clone, Default, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct ModuleLoader {
     chunks: HashMap<PathBuf, Ptr<Chunk>, BuildHasherDefault<FxHasher>>,
 }

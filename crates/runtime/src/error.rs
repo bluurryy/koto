@@ -5,7 +5,8 @@ use std::{error, fmt, time::Duration};
 use thiserror::Error;
 
 /// The different error types that can be thrown by the Koto runtime
-#[derive(Error, Clone)]
+#[derive(Error, Clone, KotoTrace)]
+#[koto(runtime = crate)]
 #[allow(missing_docs)]
 pub enum ErrorKind {
     #[error("{0}")]
@@ -97,7 +98,8 @@ impl fmt::Debug for ErrorKind {
 }
 
 /// An error thrown by the Koto runtime
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Error {
     /// The error that was thrown
     pub error: ErrorKind,
@@ -219,7 +221,8 @@ where
 }
 
 /// A chunk and instruction pointer in a call stack where an error was thrown
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, KotoTrace)]
+#[koto(runtime = crate)]
 #[allow(missing_docs)]
 pub struct InstructionFrame {
     pub chunk: Ptr<Chunk>,

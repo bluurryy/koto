@@ -1,7 +1,10 @@
 use std::io::{self, BufReader, BufWriter, Result, SeekFrom, prelude::*};
 
+use koto_memory::KotoTrace;
+
 /// A combination of BufReader and BufWriter
-#[derive(Debug)]
+#[derive(Debug, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct BufferedFile<T: Write>(Reader<T>);
 
 type Reader<T> = BufReader<BufWriterWrapper<T>>;
@@ -77,7 +80,8 @@ where
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, KotoTrace)]
+#[koto(runtime = crate)]
 struct BufWriterWrapper<T>(Writer<T>)
 where
     T: Write;
