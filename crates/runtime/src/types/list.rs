@@ -1,10 +1,11 @@
 use crate::{Borrow, BorrowMut, PtrMut, Result, prelude::*};
 
 /// The underlying `Vec` type used by [KList]
-pub type ValueVec = smallvec::SmallVec<[KValue; 4]>;
+pub type ValueVec = koto_memory::SmallVec<KValue, 4>;
 
 /// The List type used by the Koto runtime
-#[derive(Clone, Default)]
+#[derive(Clone, Default, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KList(PtrMut<ValueVec>);
 
 impl KList {

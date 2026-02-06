@@ -1,5 +1,5 @@
 use derive_more::From;
-use koto_runtime::{Result, derive::*, prelude::*};
+use koto_runtime::{Result, derive::*, memory::Untrace, prelude::*};
 use palette::FromColor;
 use std::fmt;
 
@@ -39,14 +39,15 @@ macro_rules! set_component {
     }};
 }
 
-#[derive(Copy, Clone, PartialEq, KotoCopy, KotoType)]
+#[derive(Copy, Clone, PartialEq, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = koto_runtime, use_copy)]
 pub struct Color {
     pub color: Encoding,
     pub alpha: f32,
 }
 
-#[derive(Copy, Clone, From, PartialEq)]
+#[derive(Copy, Clone, From, PartialEq, KotoTrace)]
+#[koto(runtime = koto_runtime, trace(ignore))]
 pub enum Encoding {
     Srgb(palette::Srgb),
     Hsl(palette::Hsl),
@@ -401,7 +402,7 @@ impl KotoObject for Color {
             None => unreachable!(), // All color variants have 4 components
         });
 
-        Ok(KIterator::with_std_iter(iter))
+        Ok(KIterator::with_std_iter(Untrace(iter)))
     }
 }
 

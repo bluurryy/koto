@@ -1,10 +1,12 @@
 use std::collections::HashSet;
 
+use koto_memory::KotoTrace;
 use koto_parser::{AstIndex, ConstantIndex, Span};
 use thiserror::Error;
 
 /// The different error types that can be thrown while compiling a [Frame]
-#[derive(Error, Clone, Debug)]
+#[derive(Error, Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub enum FrameError {
     #[error("the loop stack is empty")]
     EmptyLoopInfoStack,

@@ -15,9 +15,18 @@ repository.workspace = true
 default = ["rc"]
 
 # Only one memory management strategy can be enabled at a time.
-# To use `arc`, default features must be disabled.
-arc = ["parking_lot"]
-rc = []
+# To use any other than `rc`, default features must be disabled.
+agc = ["koto_derive/agc", "parking_lot", "dumpster"]
+arc = ["koto_derive/arc", "parking_lot"]
+gc = ["koto_derive/gc", "dumpster"]
+rc = ["koto_derive/rc"]
 
 [dependencies]
+koto_derive = { workspace = true }
+
+dumpster = { workspace = true, optional = true }
 parking_lot = { workspace = true, optional = true }
+smallvec = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true

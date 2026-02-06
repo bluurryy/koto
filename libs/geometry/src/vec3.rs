@@ -3,11 +3,11 @@ use crate::{
     geometry_compound_assign_op,
 };
 use glam::DVec3;
-use koto_runtime::{Result, derive::*, prelude::*};
+use koto_runtime::{Result, derive::*, memory::Untrace, prelude::*};
 use std::{fmt, ops};
 
-#[derive(Copy, Clone, PartialEq, KotoCopy, KotoType)]
-#[koto(runtime = koto_runtime, use_copy)]
+#[derive(Copy, Clone, PartialEq, KotoCopy, KotoType, KotoTrace)]
+#[koto(runtime = koto_runtime, use_copy, trace(ignore))]
 pub struct Vec3(DVec3);
 
 #[koto_impl(runtime = koto_runtime)]
@@ -161,7 +161,7 @@ impl KotoObject for Vec3 {
             KIteratorOutput::Value(result.into())
         });
 
-        Ok(KIterator::with_std_iter(iter))
+        Ok(KIterator::with_std_iter(Untrace(iter)))
     }
 }
 

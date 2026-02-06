@@ -1,7 +1,9 @@
+use koto_runtime::KotoTrace;
 use thiserror::Error;
 
 /// The different error types that can result from [Koto](crate::Koto) operations
-#[derive(Debug, Error, Clone)]
+#[derive(Debug, Error, Clone, KotoTrace)]
+#[koto(runtime = koto_runtime)]
 #[allow(missing_docs)]
 pub enum Error {
     #[error("{0}")]

@@ -142,7 +142,7 @@ pub fn make_module() -> KMap {
 }
 
 /// The File type used in the io module
-#[derive(Clone, KotoCopy, KotoType)]
+#[derive(Clone, KotoCopy, KotoType, KotoTrace)]
 #[koto(runtime = crate)]
 pub struct File(Ptr<dyn KotoFile>);
 
@@ -156,7 +156,7 @@ impl File {
     /// Wraps a file that implements traits typical of a system file in a buffered reader/writer
     pub fn system_file<T>(file: T, path: PathBuf) -> KValue
     where
-        T: Read + Write + Seek + KotoSend + KotoSync + 'static,
+        T: Read + Write + Seek + KotoSend + KotoSync + KotoTrace + 'static,
     {
         Self(make_ptr!(BufferedSystemFile::new(file, path))).into()
     }
@@ -253,9 +253,11 @@ impl From<File> for KValue {
     }
 }
 
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 struct BufferedSystemFile<T>
 where
-    T: Write + KotoSend + KotoSync,
+    T: Write + KotoSend + KotoSync + KotoTrace,
 {
     file: KCell<BufferedFile<T>>,
     path: PathBuf,
@@ -263,7 +265,7 @@ where
 
 impl<T> BufferedSystemFile<T>
 where
-    T: Read + Write + Seek + KotoSend + KotoSync,
+    T: Read + Write + Seek + KotoSend + KotoSync + KotoTrace,
 {
     pub fn new(file: T, path: PathBuf) -> Self {
         Self {
@@ -275,7 +277,7 @@ where
 
 impl<T> KotoFile for BufferedSystemFile<T>
 where
-    T: Read + Write + Seek + KotoSend + KotoSync,
+    T: Read + Write + Seek + KotoSend + KotoSync + KotoTrace,
 {
     fn id(&self) -> KString {
         self.path.to_string_lossy().to_string().into()
@@ -296,7 +298,7 @@ where
 
 impl<T> KotoRead for BufferedSystemFile<T>
 where
-    T: Read + Write + KotoSend + KotoSync,
+    T: Read + Write + KotoSend + KotoSync + KotoTrace,
 {
     fn read_line(&self) -> Result<Option<String>> {
         let mut buffer = String::new();
@@ -323,7 +325,7 @@ where
 
 impl<T> KotoWrite for BufferedSystemFile<T>
 where
-    T: Read + Write + KotoSend + KotoSync,
+    T: Read + Write + KotoSend + KotoSync + KotoTrace,
 {
     fn write(&self, bytes: &[u8]) -> Result<()> {
         self.file.borrow_mut().write(bytes).map_err(map_io_err)?;
@@ -344,7 +346,7 @@ where
 
 impl<T> fmt::Display for BufferedSystemFile<T>
 where
-    T: Write + KotoSend + KotoSync,
+    T: Write + KotoSend + KotoSync + KotoTrace,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.path.to_string_lossy())
@@ -353,7 +355,7 @@ where
 
 impl<T> fmt::Debug for BufferedSystemFile<T>
 where
-    T: Write + KotoSend + KotoSync,
+    T: Write + KotoSend + KotoSync + KotoTrace,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.to_string())

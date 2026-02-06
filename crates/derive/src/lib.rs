@@ -2,13 +2,11 @@
 
 #![warn(missing_docs)]
 
-#[cfg(all(feature = "arc", feature = "rc"))]
-compile_error!("A single memory management feature can be enabled at a time");
-
 mod attributes;
 mod function;
 mod koto_copy;
 mod koto_impl;
+mod koto_trace;
 mod koto_type;
 mod overloading;
 
@@ -51,7 +49,7 @@ use proc_macro::TokenStream;
 ///
 /// Similarly, if a non-`Result` value is returned, then the generated wrapper will return
 /// `Ok(KValue::from(value))`.
-///  
+///
 /// ## Non-Koto Arguments
 ///
 /// - If an argument takes `&mut CallContext` then it will receive the `CallContext` with which the
@@ -72,7 +70,7 @@ use proc_macro::TokenStream;
 /// E.g.:
 /// ```ignore
 /// koto_fn! {
-///     runtime = koto_runtime;   
+///     runtime = koto_runtime;
 ///
 ///     fn foo()...
 /// }
@@ -195,6 +193,58 @@ pub fn derive_koto_type(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(KotoCopy, attributes(koto))]
 pub fn derive_koto_copy(input: TokenStream) -> TokenStream {
     koto_copy::derive_koto_copy(input)
+}
+
+/// `#[derive(KotoTrace)]`
+///
+/// Implements `KotoTrace` for the struct or enum.
+///
+/// When the `"gc"` or `"agc"` feature is enabled, this macro will produce an implementation of
+/// [`dumpster::TraceWith`](https://docs.rs/dumpster/2.0.0/dumpster/trait.TraceWith.html), the
+/// underlying trait powering the garbage collection.
+///
+/// Since the `KotoTrace` trait is implemented for all types that satisfy its bounds,
+/// this `dumpster::TraceWith` implementation makes the type automatically
+/// implement `KotoTrace`, provided that it is also `'static`.
+///
+/// By default, this derive macro expects that all fields implement the trace trait.
+/// You can exclude fields from tracing, and thus garbage collection, by adding the
+/// `#[koto(trace(ignore))]` attribute the fields or the whole container.
+/// This is particularly useful for types from third party crates that you can't implement the trace trait for.
+///
+/// **Note:** Don't `trace(ignore)` fields that contain `Ptr`s as this can lead to memory leaks.
+///
+/// # Examples
+///
+/// ```ignore
+/// #[derive(KotoTrace)]
+/// struct Point {
+///     x: f64,
+///     y: f64,
+/// }
+///
+/// // Ignore a field that we know has no `Ptr`s inside.
+/// #[derive(KotoTrace)]
+/// struct Node {
+///     parent: Option<Ptr<Node>>,
+///     children: Vec<Ptr<Node>>,
+///
+///     #[koto(trace(ignore))]
+///     color: some_dependency::Color,
+/// }
+///
+/// // Ignore all fields.
+/// #[derive(KotoTrace)]
+/// #[koto(trace(ignore))]
+/// struct Ball {
+///     position: some_dependency::Position,
+///     velocity: some_dependency::Position,
+///     rotation: some_dependency::Rotation,
+/// }
+/// ```
+#[proc_macro_derive(KotoTrace, attributes(koto))]
+pub fn derive_koto_trace(input: TokenStream) -> TokenStream {
+    koto_trace::derive_koto_trace(input)
 }
 
 // NOTE: The documentation examples are tested in `crates/koto/tests/derive_koto_impl_doc.rs`

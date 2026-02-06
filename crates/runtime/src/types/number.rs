@@ -1,4 +1,5 @@
 use crate::KValue;
+use koto_memory::KotoTrace;
 use std::{
     cmp::Ordering,
     fmt,
@@ -10,7 +11,8 @@ use std::{
 ///
 /// The number can be either an `f64` or an `i64` depending on usage.
 #[allow(missing_docs)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum KNumber {
     F64(f64),
     I64(i64),

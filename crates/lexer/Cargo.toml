@@ -11,7 +11,19 @@ license.workspace = true
 readme.workspace = true
 repository.workspace = true
 
+[features]
+default = ["rc"]
+
+# Only one memory management strategy can be enabled at a time.
+# To use any other than `rc`, default features must be disabled.
+agc = ["koto_memory/agc"]
+arc = ["koto_memory/arc"]
+gc = ["koto_memory/gc"]
+rc = ["koto_memory/rc"]
+
 [dependencies]
+koto_memory = { workspace = true }
+
 unicode-segmentation = { workspace = true }
 unicode-width = { workspace = true }
 unicode-xid = { workspace = true }

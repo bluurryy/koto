@@ -1,14 +1,21 @@
-use crate::attributes::koto_derive_attributes;
-use proc_macro::TokenStream;
+use crate::attributes::koto_container_attributes;
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{DeriveInput, parse_macro_input};
+use syn::{DeriveInput, Result};
 
-pub(crate) fn derive_koto_copy(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
+pub(crate) fn derive_koto_copy(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match derive_koto_copy_inner(input) {
+        Ok(tokens) => tokens.into(),
+        Err(error) => error.into_compile_error().into(),
+    }
+}
+
+fn derive_koto_copy_inner(input: proc_macro::TokenStream) -> Result<TokenStream> {
+    let input = syn::parse::<DeriveInput>(input)?;
     let name = input.ident;
     let (impl_generics, ty_generics, generic_where_clause) = input.generics.split_for_impl();
 
-    let attributes = koto_derive_attributes(&input.attrs);
+    let attributes = koto_container_attributes(&input.attrs)?;
     let (required_trait, copy_impl) = if attributes.use_copy {
         (quote! {Copy}, quote! {(*self).into()})
     } else {
@@ -37,5 +44,5 @@ pub(crate) fn derive_koto_copy(input: TokenStream) -> TokenStream {
         }
     };
 
-    result.into()
+    Ok(result)
 }

@@ -6,7 +6,7 @@ mod objects {
     use koto_runtime::{Result, derive::*, prelude::*};
     use koto_test_utils::*;
 
-    #[derive(Clone, Copy, Debug, KotoCopy, KotoType)]
+    #[derive(Clone, Copy, Debug, KotoCopy, KotoType, KotoTrace)]
     #[koto(runtime = koto_runtime, use_copy)]
     struct TestObject {
         x: i64,
@@ -332,7 +332,7 @@ mod objects {
         }
     }
 
-    #[derive(Clone, Debug, KotoCopy, KotoType)]
+    #[derive(Clone, Debug, KotoCopy, KotoType, KotoTrace)]
     #[koto(runtime = koto_runtime)]
     struct TestObjectAccess {
         field: KValue,
@@ -457,6 +457,20 @@ mod objects {
         map: IndexMap<KString, KValue>,
     }
 
+    #[cfg(any(feature = "gc", feature = "agc"))]
+    unsafe impl<V: koto_memory::dumpster::Visitor> koto_memory::dumpster::TraceWith<V>
+        for MapLikeObject
+    {
+        fn accept(&self, visitor: &mut V) -> core::result::Result<(), ()> {
+            for (key, value) in &self.map {
+                key.accept(visitor)?;
+                value.accept(visitor)?;
+            }
+
+            Ok(())
+        }
+    }
+
     impl MapLikeObject {
         fn make_value() -> KValue {
             KObject::from(Self {
@@ -518,7 +532,7 @@ mod objects {
         }
     }
 
-    #[derive(Clone, Debug, KotoCopy, KotoType)]
+    #[derive(Clone, Debug, KotoCopy, KotoType, KotoTrace)]
     #[koto(runtime = koto_runtime)]
     struct TestIterator {
         x: i64,
@@ -548,7 +562,7 @@ mod objects {
         }
     }
 
-    #[derive(Clone, KotoCopy, KotoType)]
+    #[derive(Clone, KotoCopy, KotoType, KotoTrace)]
     #[koto(runtime = koto_runtime)]
     struct GenericObject<T>
     where

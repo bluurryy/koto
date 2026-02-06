@@ -6,7 +6,13 @@ bench:
 bench_arc:
   cargo bench -p koto --no-default-features --features arc
 
-checks: fmt test test_arc test_examples clippy clippy_arc check_links doc wasm
+bench_gc:
+  cargo bench -p koto --no-default-features --features gc
+
+bench_agc:
+  cargo bench -p koto --no-default-features --features agc
+
+checks: fmt test test_arc test_gc test_agc test_examples clippy clippy_arc check_links doc wasm
 
 check_links:
   mlc --offline README.md
@@ -45,6 +51,24 @@ test_arc *args:
     -p koto \
     {{args}}
   just test_libs --no-default-features --features arc
+
+test_agc *args:
+  cargo test --tests --no-default-features --features agc \
+    -p koto_parser \
+    -p koto_bytecode \
+    -p koto_runtime \
+    -p koto \
+    {{args}}
+  just test_libs --no-default-features --features agc
+
+test_gc *args:
+  cargo test --tests --no-default-features --features gc \
+    -p koto_parser \
+    -p koto_bytecode \
+    -p koto_runtime \
+    -p koto \
+    {{args}}
+  just test_libs --no-default-features --features gc
 
 test_benches:
   cargo test --benches

@@ -6,6 +6,8 @@ use std::{collections::VecDeque, mem::take, result::Result as StdResult};
 use thiserror::Error;
 
 /// An iterator that links the output of two iterators together in a chained sequence
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Chain {
     iter_a: Option<KIterator>,
     iter_b: KIterator,
@@ -70,6 +72,8 @@ impl Iterator for Chain {
 }
 
 /// An iterator that splits the incoming iterator into iterators of size N
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Chunks {
     iter: KIterator,
     chunk_size: usize,
@@ -146,6 +150,8 @@ pub enum ChunksError {
 }
 
 /// An iterator that cycles through the adapted iterator infinitely
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Cycle {
     iter: KIterator,
     cache: Vec<KValue>,
@@ -221,6 +227,8 @@ impl Iterator for Cycle {
 }
 
 /// An iterator that runs a function on each output value from the adapted iterator
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Each {
     iter: KIterator,
     function: KValue,
@@ -289,6 +297,8 @@ impl Iterator for Each {
 }
 
 /// An iterator that attaches an enumerated iteration position to each value
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Enumerate {
     iter: KIterator,
     index: usize,
@@ -334,6 +344,8 @@ impl Iterator for Enumerate {
 }
 
 /// An iterator that flattens the output of nested iterators
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Flatten {
     iter: KIterator,
     nested: Option<KIterator>,
@@ -399,6 +411,8 @@ impl Iterator for Flatten {
 }
 
 /// An iterator that inserts a separator value between each output value from the adapted iterator
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Intersperse {
     iter: KIterator,
     peeked: Option<Output>,
@@ -459,6 +473,8 @@ impl Iterator for Intersperse {
 /// An iterator that inserts a separator value between each output value from the adapted iterator
 ///
 /// The separator value is the result of calling a provided separator function.
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct IntersperseWith {
     iter: KIterator,
     peeked: Option<Output>,
@@ -541,6 +557,8 @@ fn intersperse_size_hint(iter: &KIterator, next_is_separator: bool) -> (usize, O
 }
 
 /// An iterator that skips over values that fail a predicate, and keeps those that pass
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Keep {
     iter: KIterator,
     predicate: KValue,
@@ -618,6 +636,8 @@ impl Iterator for Keep {
 }
 
 /// An iterator that outputs the first element from any ValuePairs
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct PairFirst {
     iter: KIterator,
 }
@@ -654,6 +674,8 @@ impl Iterator for PairFirst {
 }
 
 /// An iterator that outputs the second element from any ValuePairs
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct PairSecond {
     iter: KIterator,
 }
@@ -690,6 +712,8 @@ impl Iterator for PairSecond {
 }
 
 /// An iterator adaptor that reverses the output of the input iterator
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Reversed {
     iter: KIterator,
 }
@@ -737,6 +761,8 @@ impl Iterator for Reversed {
 }
 
 /// An iterator that skips N values from the adapted iterator before yielding all following values
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Skip {
     iter: KIterator,
     remaining: usize,
@@ -798,7 +824,8 @@ impl Iterator for Skip {
 
 /// An error that can be returned by [Reversed::new]
 #[allow(missing_docs)]
-#[derive(Debug, Error)]
+#[derive(Debug, Error, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum ReversedError {
     #[error("the provided iterator isn't bidirectional")]
     IteratorIsntReversible,
@@ -807,6 +834,8 @@ pub enum ReversedError {
 }
 
 /// An iterator that yields the next value from the input, and then steps forward by
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Step {
     iter: KIterator,
     step: u64,
@@ -853,13 +882,16 @@ impl Iterator for Step {
 
 /// An error that can be returned by [Step::new]
 #[allow(missing_docs)]
-#[derive(Debug, Error)]
+#[derive(Debug, Error, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum StepError {
     #[error("the step size must be greater than zero")]
     StepCantBeZero,
 }
 
 /// An iterator that takes up to N values from the adapted iterator, and then stops
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Take {
     iter: KIterator,
     remaining: usize,
@@ -907,6 +939,8 @@ impl Iterator for Take {
 }
 
 /// An adaptor that yields values from an iterator while they pass a predicate
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct TakeWhile {
     iter: KIterator,
     predicate: KValue,
@@ -991,6 +1025,8 @@ impl Iterator for TakeWhile {
 }
 
 /// An iterator that splits the incoming iterator into overlapping iterators of size N
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Windows {
     iter: KIterator,
     cache: VecDeque<KValue>,
@@ -1065,6 +1101,8 @@ pub enum WindowsError {
 }
 
 /// An iterator that combines the output of two iterators, 'zipping' output pairs together
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct Zip {
     iter_a: KIterator,
     iter_b: KIterator,

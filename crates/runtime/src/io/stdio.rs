@@ -1,6 +1,8 @@
 use crate::{KString, KotoFile, KotoRead, KotoWrite, Result, core_lib::io::map_io_err, lazy};
 use std::io::{self, IsTerminal, Read, Write};
 
+use koto_memory::KotoTrace;
+
 macro_rules! runtime_error_unavailable {
     ($stream:literal) => {
         crate::runtime_error!(concat!($stream, " is unavailable"))
@@ -15,11 +17,13 @@ macro_rules! stream {
         unavailable: $unavailable:ident,
     ) => {
         #[doc = concat!("The process's ", $name, " used in Koto")]
-        #[derive(Default)]
+        #[derive(Default, KotoTrace)]
+        #[koto(runtime = crate)]
         pub struct $system {}
 
         #[doc = concat!("Represents an unavailable ", $name, " stream")]
-        #[derive(Default)]
+        #[derive(Default, KotoTrace)]
+        #[koto(runtime = crate)]
         pub struct $unavailable {}
 
         const _: () = {

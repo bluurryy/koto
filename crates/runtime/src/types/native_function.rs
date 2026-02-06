@@ -1,4 +1,5 @@
 use crate::{Ptr, Result, error::unexpected_args_after_instance, prelude::*};
+use koto_memory::Untrace;
 use std::{
     fmt,
     hash::{Hash, Hasher},
@@ -18,21 +19,21 @@ impl<T> KotoFunction for T where
 /// An function that's defined outside of the Koto runtime
 ///
 /// See [`KValue::NativeFunction`]
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KNativeFunction {
     /// The function implementation that should be called when calling the external function
-    //
-    // Disable a clippy false positive, see https://github.com/rust-lang/rust-clippy/issues/9299
-    // The type signature can't be simplified without stabilized trait aliases,
-    // see https://github.com/rust-lang/rust/issues/55628
-    #[allow(clippy::type_complexity)]
-    pub function: Ptr<dyn KotoFunction>,
+    pub function: Ptr<Untrace<dyn KotoFunction>>,
 }
 
 impl KNativeFunction {
     /// Creates a new external function
-    pub fn new(function: impl KotoFunction) -> Self {
+    ///
+    /// **NOTE:** Reference cycles with native functions can't be collected
+    /// by the garbage collector!
+    pub fn new(function: impl KotoFunction + 'static) -> Self {
         Self {
-            function: make_ptr!(function),
+            function: make_ptr!(Untrace(function)),
         }
     }
 }

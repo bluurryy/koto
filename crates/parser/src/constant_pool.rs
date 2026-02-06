@@ -1,4 +1,4 @@
-use koto_memory::Ptr;
+use koto_memory::{KotoTrace, Ptr};
 use std::{
     collections::{HashMap, hash_map::DefaultHasher},
     fmt,
@@ -10,7 +10,8 @@ use std::{
 use crate::{StringSlice, error::InternalError};
 
 /// The type used to refer to constants in the [ConstantPool]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct ConstantIndex(u32);
 
 impl From<ConstantIndex> for u32 {
@@ -46,7 +47,8 @@ impl fmt::Display for ConstantIndex {
 }
 
 // An entry in the list of constants contained in a [ConstantPool]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, KotoTrace)]
+#[koto(memory = koto_memory)]
 enum ConstantEntry {
     // An f64 constant
     F64(f64),
@@ -70,7 +72,8 @@ pub enum Constant<'a> {
 /// A constant pool produced by the [Parser](crate::Parser) for a Koto script
 ///
 /// A `ConstantPoolBuilder` is used to prepare the pool.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, KotoTrace)]
+#[koto(memory = koto_memory)]
 pub struct ConstantPool {
     // The list of constants in the pool
     //

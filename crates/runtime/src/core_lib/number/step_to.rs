@@ -1,6 +1,7 @@
 use crate::{Result, prelude::*};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct StepToI64Iterator {
     target: i64,
     step_by: i64,
@@ -61,7 +62,8 @@ impl Iterator for StepToI64Iterator {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct StepToF64Iterator {
     target: f64,
     step_by: f64,

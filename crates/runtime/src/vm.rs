@@ -30,6 +30,8 @@ pub enum ControlFlow {
 }
 
 /// State shared between concurrent VMs
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 struct VmContext {
     // The settings that were used to initialize the runtime
     settings: KotoVmSettings,
@@ -94,6 +96,8 @@ pub trait ModuleImportedCallback: Fn(&Path) + KotoSend + KotoSync {}
 impl<T> ModuleImportedCallback for T where T: Fn(&Path) + KotoSend + KotoSync {}
 
 /// The configurable settings that should be used by the Koto runtime
+#[derive(KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KotoVmSettings {
     /// Whether or not tests should be run when importing modules
     ///
@@ -118,6 +122,7 @@ pub struct KotoVmSettings {
     ///
     /// This allows you to track the runtime's dependencies, which might be useful if you want to
     /// reload the script when one of its dependencies has changed.
+    #[koto(trace(ignore))]
     pub module_imported_callback: Option<Box<dyn ModuleImportedCallback>>,
 
     /// The runtime's `stdin`that can be accessed from within the script via `io.stdin`
@@ -156,7 +161,8 @@ impl Default for KotoVmSettings {
 }
 
 /// The Koto runtime's virtual machine
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KotoVm {
     // The exports map for the current module
     exports: KMap,
@@ -183,7 +189,8 @@ pub struct KotoVm {
 }
 
 /// The execution state of a VM
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub enum ExecutionState {
     /// The VM is ready to execute instructions
     Inactive,
@@ -2961,7 +2968,7 @@ impl KotoVm {
         let mut call_context = CallContext::new(self, call_info.frame_base, call_info.arg_count);
 
         let result = match callable {
-            ExternalCallable::Function(f) => (f.function)(&mut call_context),
+            ExternalCallable::Function(f) => (f.function.0)(&mut call_context),
             ExternalCallable::Object(o) => o.try_borrow_mut()?.call(&mut call_context),
         }?;
 
@@ -3930,7 +3937,8 @@ impl<'a, const N: usize> From<&'a [KValue; N]> for CallArgs<'a> {
 type ModuleCache = HashMap<PathBuf, Option<KMap>, BuildHasherDefault<FxHasher>>;
 
 // A frame in the VM's call stack
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct Frame {
     // The chunk being interpreted in this frame
     pub chunk: Ptr<Chunk>,
@@ -3981,7 +3989,8 @@ impl Frame {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct NonLocals {
     wildcard_imports: Option<Ptr<Vec<KValue>>>,
     module_exports: KMap,

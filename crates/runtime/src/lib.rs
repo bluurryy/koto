@@ -5,12 +5,12 @@
 mod display_context;
 mod error;
 mod io;
+mod send_sync;
 mod types;
 mod vm;
 
 pub mod core_lib;
 pub mod prelude;
-mod send_sync;
 
 pub use crate::{
     display_context::DisplayContext,
@@ -32,7 +32,9 @@ pub use crate::{
     vm::{CallArgs, KotoVm, KotoVmSettings, ModuleImportedCallback, ReturnOrYield},
 };
 pub use koto_derive as derive;
-pub use koto_memory::{Borrow, BorrowMut, KCell, Ptr, PtrMut, lazy, make_ptr, make_ptr_mut};
+pub use koto_memory::{
+    self as memory, Borrow, BorrowMut, KCell, KotoTrace, Ptr, PtrMut, lazy, make_ptr, make_ptr_mut,
+};
 
 #[doc(hidden)]
 pub mod __private;

@@ -2,11 +2,13 @@ use crate::{Ptr, Result, lazy, prelude::*};
 use std::ops::{Deref, Range};
 
 /// The Tuple type used by the Koto runtime
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 pub struct KTuple(Inner);
 
 // Either the full tuple, a slice with 16bit bounds, or a slice with larger bounds
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 enum Inner {
     Full(Ptr<Vec<KValue>>),
     Slice(TupleSlice16),
@@ -209,7 +211,8 @@ impl From<TupleSlice16> for KTuple {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct TupleSlice {
     data: Ptr<Vec<KValue>>,
     bounds: Range<usize>,
@@ -260,7 +263,8 @@ impl From<TupleSlice16> for TupleSlice {
 
 // A slice with 16bit bounds, allowing it to be stored in KTuple without the overhead of additional
 // allocation.
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 struct TupleSlice16 {
     data: Ptr<Vec<KValue>>,
     bounds: Range<u16>,
@@ -302,7 +306,8 @@ impl TryFrom<TupleSlice> for TupleSlice16 {
 }
 
 #[repr(u8)]
-#[derive(Clone)]
+#[derive(Clone, KotoTrace)]
+#[koto(runtime = crate)]
 enum ZeroU8 {
     Zero = 0,
 }
@@ -324,7 +329,7 @@ mod tests {
 
     #[test]
     fn test_tuple_mem_size() {
-        assert!(std::mem::size_of::<KTuple>() <= 16);
+        assert!(std::mem::size_of::<KTuple>() <= if cfg!(feature = "agc") { 24 } else { 16 });
     }
 
     #[test]

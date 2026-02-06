@@ -2,13 +2,13 @@ use crate::{
     geometry_arithmetic_op, geometry_arithmetic_op_rhs, geometry_comparison_op,
     geometry_compound_assign_op,
 };
-use koto_runtime::{Result, derive::*, prelude::*};
+use koto_runtime::{Result, derive::*, memory::Untrace, prelude::*};
 use std::{fmt, ops};
 
 type Inner = glam::DVec2;
 
-#[derive(Copy, Clone, PartialEq, KotoCopy, KotoType)]
-#[koto(runtime = koto_runtime, use_copy)]
+#[derive(Copy, Clone, PartialEq, KotoCopy, KotoType, KotoTrace)]
+#[koto(runtime = koto_runtime, use_copy, trace(ignore))]
 pub struct Vec2(Inner);
 
 #[koto_impl(runtime = koto_runtime)]
@@ -153,7 +153,7 @@ impl KotoObject for Vec2 {
             KIteratorOutput::Value(result.into())
         });
 
-        Ok(KIterator::with_std_iter(iter))
+        Ok(KIterator::with_std_iter(Untrace(iter)))
     }
 }
 

@@ -4,11 +4,9 @@ use std::{
 };
 
 use crate::{
-    Ptr,
-    ptr_impl::{
-        BorrowImpl, BorrowMutImpl, CellImpl, borrow, borrow_mut, borrowed_filter_map,
-        borrowed_mut_filter_map, try_borrow, try_borrow_mut,
-    },
+    Pointee, Ptr, feature_select,
+    macros::{exactly_one_feature_match, exactly_one_feature_match_or_panic},
+    ptr_impl::{BorrowImpl, BorrowMutImpl, CellImpl},
 };
 
 /// Makes a PtrMut, with support for casting to trait objects
@@ -27,7 +25,7 @@ macro_rules! make_ptr_mut {
 /// A mutable pointer to a value in allocated memory
 pub type PtrMut<T> = Ptr<KCell<T>>;
 
-impl<T> From<T> for PtrMut<T> {
+impl<T: Pointee> From<T> for PtrMut<T> {
     fn from(value: T) -> Self {
         Ptr::from(KCell::from(value))
     }
@@ -36,6 +34,17 @@ impl<T> From<T> for PtrMut<T> {
 /// A mutable value with borrowing checked at runtime
 #[derive(Debug, Default)]
 pub struct KCell<T: ?Sized>(CellImpl<T>);
+
+feature_select! {
+    "gc" | "agc" => {
+        unsafe impl<V: dumpster::Visitor, T: dumpster::TraceWith<V> + ?Sized> dumpster::TraceWith<V> for KCell<T> {
+            #[inline]
+            fn accept(&self, visitor: &mut V) -> Result<(), ()> {
+                self.try_borrow().ok_or(())?.accept(visitor)
+            }
+        }
+    }
+}
 
 impl<T> From<T> for KCell<T> {
     fn from(value: T) -> Self {
@@ -56,14 +65,28 @@ impl<T: ?Sized> KCell<T> {
     ///
     /// See `try_borrow` for a non-panicking/non-blocking version.
     pub fn borrow(&self) -> Borrow<'_, T> {
-        Borrow(borrow(&self.0))
+        exactly_one_feature_match_or_panic! {
+            "rc" | "gc" => {
+                Borrow(self.0.borrow())
+            }
+            "arc" | "agc" => {
+                Borrow(parking_lot::RwLockReadGuard::map(self.0.read(), |x| x))
+            }
+        }
     }
 
     /// Attempts to mutably borrow the wrapped value.
     ///
     /// Returns an error if the value is currently mutably borrowed.
     pub fn try_borrow(&self) -> Option<Borrow<'_, T>> {
-        try_borrow(&self.0).map(Borrow)
+        exactly_one_feature_match_or_panic! {
+            "rc" | "gc" => {
+                self.0.try_borrow().ok().map(Borrow)
+            }
+            "arc" | "agc" => {
+                self.0.try_read().map(|g| Borrow(parking_lot::RwLockReadGuard::map(g, |x| x)))
+            }
+        }
     }
 
     /// Mutably borrows the wrapped value.
@@ -76,14 +99,28 @@ impl<T: ?Sized> KCell<T> {
     ///
     /// See `try_borrow_mut` for a non-panicking version.
     pub fn borrow_mut(&self) -> BorrowMut<'_, T> {
-        BorrowMut(borrow_mut(&self.0))
+        exactly_one_feature_match_or_panic! {
+            "rc" | "gc" => {
+                BorrowMut(self.0.borrow_mut())
+            }
+            "arc" | "agc" => {
+                BorrowMut(parking_lot::RwLockWriteGuard::map(self.0.write(), |x| x))
+            }
+        }
     }
 
     /// Attempts to mutably borrow the wrapped value.
     ///
     /// Returns an error if the value is currently mutably borrowed.
     pub fn try_borrow_mut(&self) -> Option<BorrowMut<'_, T>> {
-        try_borrow_mut(&self.0).map(BorrowMut)
+        exactly_one_feature_match_or_panic! {
+            "rc" | "gc" => {
+                self.0.try_borrow_mut().ok().map(BorrowMut)
+            }
+            "arc" | "agc" => {
+                self.0.try_write().map(|g| BorrowMut(parking_lot::RwLockWriteGuard::map(g, |x| x)))
+            }
+        }
     }
 }
 
@@ -98,9 +135,18 @@ impl<'a, T: ?Sized> Borrow<'a, T> {
         F: FnOnce(&T) -> Option<&U>,
         U: ?Sized,
     {
-        borrowed_filter_map(borrowed.0, f)
-            .map(Borrow)
-            .map_err(Borrow)
+        exactly_one_feature_match! {
+            "rc" | "gc" => {
+                BorrowImpl::filter_map(borrowed.0, f).map(Borrow).map_err(Borrow)
+            }
+            "arc" | "agc" => {
+                BorrowImpl::try_map(borrowed.0, f).map(Borrow).map_err(Borrow)
+            }
+            _ => {
+                _ = (borrowed, f);
+                unreachable!()
+            }
+        }
     }
 }
 
@@ -130,9 +176,18 @@ impl<'a, T: ?Sized> BorrowMut<'a, T> {
         F: FnOnce(&mut T) -> Option<&mut U>,
         U: ?Sized,
     {
-        borrowed_mut_filter_map(borrowed.0, f)
-            .map(BorrowMut)
-            .map_err(BorrowMut)
+        exactly_one_feature_match! {
+            "rc" | "gc" => {
+                BorrowMutImpl::filter_map(borrowed.0, f).map(BorrowMut).map_err(BorrowMut)
+            }
+            "arc" | "agc" => {
+                BorrowMutImpl::try_map(borrowed.0, f).map(BorrowMut).map_err(BorrowMut)
+            }
+            _ => {
+                _ = (borrowed, f);
+                unreachable!()
+            }
+        }
     }
 }
 
