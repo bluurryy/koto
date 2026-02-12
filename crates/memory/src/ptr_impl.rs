@@ -80,7 +80,7 @@ feature_select! {
 
 // implementation for `lazy!`
 feature_select! {
-    "rc" => {
+    "rc" | "gc" => {
         #[doc(hidden)]
         #[macro_export]
         macro_rules! __lazy {
@@ -92,32 +92,7 @@ feature_select! {
             }};
         }
     }
-    "arc" => {
-        #[doc(hidden)]
-        #[macro_export]
-        macro_rules! __lazy {
-            ($ty:ty; $expr:expr) => {{
-                static VALUE: ::std::sync::LazyLock<$ty> = ::std::sync::LazyLock::new(|| $expr.into());
-                ::std::sync::LazyLock::force(&VALUE).clone()
-            }};
-        }
-    }
-    "gc" => {
-        #[doc(hidden)]
-        #[macro_export]
-        macro_rules! __lazy {
-            ($ty:ty; $expr:expr) => {{
-                // A garbage collected pointer must not be stored in a thread local, because it can lead to a panic.
-                //
-                // The pointer registry of the garbage collector is also a thread local which can get destructed
-                // before a thread local pointer. The pointer may try to access the pointer registry when it drops
-                // which would then can cause a panic if the registry is already destructed.
-                let value: $ty = $expr.into();
-                value
-            }};
-        }
-    }
-    "agc" => {
+    "arc" | "agc" => {
         #[doc(hidden)]
         #[macro_export]
         macro_rules! __lazy {
