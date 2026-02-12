@@ -48,7 +48,7 @@ impl DebugInfo {
 
 /// A compiled chunk of bytecode, along with its associated constants and metadata
 #[derive(Clone, Default, PartialEq, KotoTrace)]
-#[koto(memory = koto_memory)]
+#[koto(memory = koto_memory, trace(ignore))]
 pub struct Chunk {
     /// The bytes representing the chunk's bytecode
     pub bytes: Vec<u8>,
