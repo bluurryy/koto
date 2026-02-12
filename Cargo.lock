@@ -331,9 +331,8 @@ dependencies = [
 
 [[package]]
 name = "dumpster"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07359778d3b6b5729ddb2751b229cb0ae84880579fb8eeabb2f5e627a6e28ed4"
+version = "2.1.0"
+source = "git+https://github.com/bluurryy/dumpster?branch=dont-panic-when-dumpster-is-gone#1335729c37e3e6274b66af768c1a8f255b1d9fef"
 dependencies = [
  "dumpster_derive",
  "loom",
@@ -343,8 +342,7 @@ dependencies = [
 [[package]]
 name = "dumpster_derive"
 version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9d846a530d39b6eba9a28eb3682c622cf96c8e54548bf5831e8bf4935c3dd2b"
+source = "git+https://github.com/bluurryy/dumpster?branch=dont-panic-when-dumpster-is-gone#1335729c37e3e6274b66af768c1a8f255b1d9fef"
 dependencies = [
  "proc-macro2",
  "quote",

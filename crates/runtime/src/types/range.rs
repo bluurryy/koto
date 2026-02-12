@@ -14,7 +14,7 @@ use std::{
 pub struct KRange(Inner);
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, KotoTrace)]
-#[koto(runtime = crate)]
+#[koto(runtime = crate, trace(ignore))]
 enum Inner {
     Unbounded,
     From {

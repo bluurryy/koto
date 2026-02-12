@@ -20,7 +20,7 @@ impl<T> KotoFunction for T where
 ///
 /// See [`KValue::NativeFunction`]
 #[derive(KotoTrace)]
-#[koto(runtime = crate)]
+#[koto(runtime = crate, trace(ignore))]
 pub struct KNativeFunction {
     /// The function implementation that should be called when calling the external function
     pub function: Ptr<Untrace<dyn KotoFunction>>,

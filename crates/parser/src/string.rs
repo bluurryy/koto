@@ -21,7 +21,7 @@ use unicode_segmentation::UnicodeSegmentation;
 pub struct KString(Inner);
 
 #[derive(Clone, KotoTrace)]
-#[koto(memory = koto_memory)]
+#[koto(memory = koto_memory, trace(ignore))]
 enum Inner {
     // A shared string
     Full(Ptr<String>),

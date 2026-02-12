@@ -70,7 +70,7 @@ pub trait KotoAccess: KotoType {
 /// ```
 /// use koto_runtime::{derive::*, prelude::*, Result};
 ///
-/// #[derive(Clone, Default, KotoType, KotoCopy)]
+/// #[derive(Clone, Default, KotoType, KotoCopy, KotoTrace)]
 /// #[koto(runtime = koto_runtime)]
 /// pub struct Foo {
 ///     data: i32,
